@@ -89,7 +89,7 @@ linux_repo = Artifact.registerArtifact(
 linux_binary = Artifact.registerArtifact(
     name = 'vmlinux-4.19.83',
     typ = 'kernel',
-    path = 'linux/vmlinux-4.19.83',
+    path = 'linux-4.19.83/vmlinux-4.19.83',
     cwd = './',
     command = '''
         cp linux-configs/config.4.19.83 linux-4.19.83/.config
@@ -149,7 +149,7 @@ if __name__ == "__main__":
                     'disk-image/spec2006/spec2006-image/spec2006', # disk_image
                     linux_binary, # linux_binary_artifact
                     disk_image, # disk_image_artifact
-                    cpu, benchmark, "test" , # params
+                    cpu, benchmark, size, # params
                     timeout = 5*24*60*60 # 5 days
                 )
             run_gem5_instance.apply_async((run,))
