@@ -152,4 +152,4 @@ if __name__ == "__main__":
                     cpu, benchmark, size, # params
                     timeout = 5*24*60*60 # 5 days
                 )
-            run_gem5_instance.apply_async((run,))
+                run_gem5_instance.apply_async((run,))
