@@ -1,0 +1,6 @@
+*.pyc
+m5out
+.vscode
+results
+gem5
+venv
