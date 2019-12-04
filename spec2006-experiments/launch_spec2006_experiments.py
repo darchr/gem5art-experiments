@@ -89,7 +89,7 @@ linux_repo = Artifact.registerArtifact(
 linux_binary = Artifact.registerArtifact(
     name = 'vmlinux-4.19.83',
     typ = 'kernel',
-    path = 'linux/vmlinux-4.19.83',
+    path = 'linux-4.19.83/vmlinux-4.19.83',
     cwd = './',
     command = '''
         cp linux-configs/config.4.19.83 linux-4.19.83/.config
@@ -103,13 +103,13 @@ linux_binary = Artifact.registerArtifact(
 
 run_script_repo = Artifact.registerArtifact(
     command = '''
-        wget https://github.com/darchr/gem5art/blob/master/docs/configs-spec2006-tests/run_spec.py;
-        mkdir -p system;
-        cd system;
-        wget https://github.com/darchr/gem5art/blob/master/docs/configs-spec2006-tests/system/__init__.py;
-        wget https://github.com/darchr/gem5art/blob/master/docs/configs-spec2006-tests/system/caches.py;
-        wget https://github.com/darchr/gem5art/blob/master/docs/configs-spec2006-tests/system/fs_tools.py;
-        wget https://github.com/darchr/gem5art/blob/master/docs/configs-spec2006-tests/system/system.py;
+        wget https://raw.githubusercontent.com/darchr/gem5art/master/docs/configs-spec-tests/run_spec.py
+        mkdir -p system
+        cd system
+        wget https://raw.githubusercontent.com/darchr/gem5art/master/docs/configs-spec-tests/system/__init__.py
+        wget https://raw.githubusercontent.com/darchr/gem5art/master/docs/configs-spec-tests/system/caches.py
+        wget https://raw.githubusercontent.com/darchr/gem5art/master/docs/configs-spec-tests/system/fs_tools.py
+        wget https://raw.githubusercontent.com/darchr/gem5art/master/docs/configs-spec-tests/system/system.py
     ''',
     typ = 'git repo',
     name = 'gem5-configs',
@@ -136,7 +136,7 @@ if __name__ == "__main__":
     # unavailable benchmarks: 400.perlbench,447.dealII,450.soplex,483.xalancbmk
 
     for cpu in cpus:
-        for size in sizes[cpu]:
+        for size in benchmark_sizes[cpu]:
             for benchmark in benchmarks:
                 run = gem5Run.createFSRun(
                     'gem5/build/X86/gem5.opt', # gem5_binary
@@ -149,7 +149,7 @@ if __name__ == "__main__":
                     'disk-image/spec2006/spec2006-image/spec2006', # disk_image
                     linux_binary, # linux_binary_artifact
                     disk_image, # disk_image_artifact
-                    cpu, benchmark, "test" , # params
+                    cpu, benchmark, size, # params
                     timeout = 5*24*60*60 # 5 days
                 )
-            run_gem5_instance.apply_async((run,))
+                run_gem5_instance.apply_async((run,))
