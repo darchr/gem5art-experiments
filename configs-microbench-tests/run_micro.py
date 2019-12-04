@@ -37,6 +37,8 @@ from m5.objects import Root
 from m5.objects import *
 
 from system import BaseTestSystem
+from system import InfMemory, SingleCycleMemory, SlowMemory
+
 BranchPredictor = LTAGE
 
 class IntALU(FUDesc):
@@ -162,40 +164,23 @@ class SimpleCPU(TimingSimpleCPU):
 class DefaultO3CPU(DerivO3CPU):
     branchPred = BranchPredictor()
 
-
-
-
 # Add more CPUs under test before this
 valid_cpus = [SimpleCPU, DefaultO3CPU, O3_W256CPU, O3_W2KCPU]
-
 valid_cpus = {cls.__name__[:-3]:cls for cls in valid_cpus}
-
-class InfMemory(SimpleMemory):
-    latency = '0ns'
-    bandwidth = '0B/s'
-
-class SingleCycleMemory(SimpleMemory):
-    latency = '1ns'
-    bandwidth = '0B/s'
-
-class SlowMemory(SimpleMemory):
-    latency = '100ns'
-    bandwidth = '0B/s'
 
 # Add more Memories under test before this
 valid_memories = [InfMemory, SingleCycleMemory, SlowMemory]
 valid_memories = {cls.__name__[:-6]:cls for cls in valid_memories}
+
 parser = argparse.ArgumentParser()
 parser.add_argument('cpu', choices = valid_cpus.keys())
 parser.add_argument('memory_model', choices = valid_memories.keys())
 parser.add_argument('binary', type = str, help = "Path to binary to run")
-
 args  = parser.parse_args()
 
 class MySystem(BaseTestSystem):
     _CPUModel = valid_cpus[args.cpu]
-    _MemoryModel = None
-
+    _MemoryModel = valid_memories[args.memory_model]
 
 system = MySystem()
 system.setTestBinary(args.binary)

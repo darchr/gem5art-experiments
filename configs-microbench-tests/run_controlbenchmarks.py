@@ -37,6 +37,7 @@ from m5.objects import Root
 from m5.objects import *
 
 from system import BaseTestSystem
+from system import InfMemory, SingleCycleMemory, SlowMemory
 
 #CPU Configs
 class Simple_LocalBP(TimingSimpleCPU):
@@ -63,33 +64,12 @@ class DefaultO3_TournamentBP(DerivO3CPU):
 class DefaultO3_LTAGEBP(DerivO3CPU):
     branchPred = LTAGE()
 
-
-
-
-
 # Add more CPUs Configs under test before this
 valid_configs = [Simple_LocalBP, Simple_BiModeBP, Simple_TournamentBP, Simple_LTAGEBP, DefaultO3_LocalBP, DefaultO3_BiModeBP, DefaultO3_TournamentBP, DefaultO3_LTAGEBP]
 valid_configs = {cls.__name__[:-2]:cls for cls in valid_configs}
 
-#valid_cpus = {cls.__name__[:-3]:cls for cls in valid_cpus}
-
-class InfMemory(SimpleMemory):
-    latency = '0ns'
-    bandwidth = '0B/s'
-
-class SingleCycleMemory(SimpleMemory):
-    latency = '1ns'
-    bandwidth = '0B/s'
-
-class SlowMemory(SimpleMemory):
-    latency = '100ns'
-    bandwidth = '0B/s'
-     
-class RealisticMemory:
-    dummy = None
-
 # Add more Memories under test before this
-valid_memories = [InfMemory, SingleCycleMemory, SlowMemory, RealisticMemory]
+valid_memories = [InfMemory, SingleCycleMemory, SlowMemory]
 valid_memories = {cls.__name__[:-6]:cls for cls in valid_memories}
 
 parser = argparse.ArgumentParser()
@@ -102,10 +82,9 @@ args = parser.parse_args()
 class MySystem(BaseTestSystem):
     _CPUModel = valid_configs[args.config]
     _MemoryModel = valid_memories[args.memory_model]
+
 system = MySystem()
-
 system.setTestBinary(args.binary)
-
 root = Root(full_system = False, system = system)
 m5.instantiate()
 

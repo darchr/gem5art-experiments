@@ -41,6 +41,17 @@ from m5.objects import *
 from optparse import OptionParser
 from argparse import Namespace
 
+class InfMemory(SimpleMemory):
+    latency = '0ns'
+    bandwidth = '0B/s'
+
+class SingleCycleMemory(SimpleMemory):
+    latency = '1ns'
+    bandwidth = '0B/s'
+
+class SlowMemory(SimpleMemory):
+    latency = '100ns'
+    bandwidth = '0B/s'
     
 class L1Cache(Cache):
     """Simple L1 Cache with default values"""
@@ -79,7 +90,6 @@ class L1ICache(L1Cache):
             return
         self.size = results    
     
-
 class L1DCache(L1Cache):
     """Simple L1 data cache with default values"""
 
@@ -124,50 +134,74 @@ class BaseTestSystem(System):
     attribute.
     """
     _CPUModel = BaseCPU
-    _MemoryModel = SimpleMemory
+    _MemoryModel = AbstractMemory
     _L1DCacheSize = "32kB"
     _L2CacheSize = "1MB"
     #_L1ICacheSize = "32kB"
     def __init__(self):
-        super(BaseTestSystem,self).__init__()
-        self.clk_domain = SrcClockDomain(clock = "3GHz",voltage_domain = VoltageDomain())
-        self.mem_mode = 'timing'
-        self.mem_ranges = [AddrRange('2GB')]
-            
-        self.cpu = self._CPUModel()
-        self.cpu.l1d = L1DCache(self._L1DCacheSize)
-        self.cpu.l1i = L1ICache()
-        self.l1_to_l2 = L2XBar(width=64)
+        if self._MemoryModel is SlowMemory:
 
-        self.l2cache = L2Cache(self._L2CacheSize)
-        self.membus = SystemXBar(width=64)
+            super(BaseTestSystem,self).__init__()
+            self.clk_domain = SrcClockDomain(clock = "3GHz",
+                                             voltage_domain = VoltageDomain())
+            self.mem_mode = 'timing'
+            self.mem_ranges = [AddrRange('2GB')]
 
-        self.cpu.l1d.connectCPU(self.cpu)
-        self.cpu.l1d.connectBus(self.l1_to_l2)
-        self.cpu.l1i.connectCPU(self.cpu)
-        self.cpu.l1i.connectBus(self.l1_to_l2)
 
-        self.l2cache.connectCPUSideBus(self.l1_to_l2)
-        self.l2cache.connectMemSideBus(self.membus)
+            self.cpu = self._CPUModel()
+            self.cpu.l1d = L1DCache(self._L1DCacheSize)
+            self.cpu.l1i = L1ICache()
+            self.l1_to_l2 = L2XBar(width=64)
 
-        self.mem_ctrl = DDR4_2400_16x4()
-        self.mem_ctrl.range = self.mem_ranges[0]
-        self.mem_ctrl.port = self.membus.master
-        #self.mem_ctrl.channels = 2
+            self.l2cache = L2Cache(self._L2CacheSize)
+            self.membus = SystemXBar(width=64)
 
-        self.cpu.createInterruptController()
-        if m5.defines.buildEnv['TARGET_ISA'] == "x86":
-            self.cpu.interrupts[0].pio = self.membus.master
-            self.cpu.interrupts[0].int_master = self.membus.slave
-            self.cpu.interrupts[0].int_slave = self.membus.master
+            self.cpu.l1d.connectCPU(self.cpu)
+            self.cpu.l1d.connectBus(self.l1_to_l2)
+            self.cpu.l1i.connectCPU(self.cpu)
+            self.cpu.l1i.connectBus(self.l1_to_l2)
 
-        self.system_port = self.membus.slave
+            self.l2cache.connectCPUSideBus(self.l1_to_l2)
+            self.l2cache.connectMemSideBus(self.membus)
+
+            self.mem_ctrl = DDR4_2400_16x4()
+            self.mem_ctrl.range = self.mem_ranges[0]
+            self.mem_ctrl.port = self.membus.master
+            #self.mem_ctrl.channels = 2
+
+            self.cpu.createInterruptController()
+            if m5.defines.buildEnv['TARGET_ISA'] == "x86":
+                self.cpu.interrupts[0].pio = self.membus.master
+                self.cpu.interrupts[0].int_master = self.membus.slave
+                self.cpu.interrupts[0].int_slave = self.membus.master
+
+            self.system_port = self.membus.slave
+
+        else:
+            self.clk_domain = SrcClockDomain(clock = "1GHz",
+                                             voltage_domain = VoltageDomain())
+
+            self.mem_mode = 'timing'
+            self.mem_ranges = [AddrRange('2GB')]
+
+            self.cpu = self._CPUModel()
+            self.mem_ctrl = self._MemoryModel()
+            self.mem_ctrl.range = self.mem_ranges[0]
+
+            self.cpu.icache_port = self.mem_ctrl.port
+            self.cpu.dcache_port = self.mem_ctrl.port
+            self.system_port = self.mem_ctrl.port
+
+            self.cpu.createInterruptController()
+            if m5.defines.buildEnv['TARGET_ISA'] == "x86":
+                self.interrupt_xbar = SystemXBar()
+                self.cpu.interrupts[0].pio = self.interrupt_xbar.master
+                self.cpu.interrupts[0].int_master = self.interrupt_xbar.slave
+                self.cpu.interrupts[0].int_slave = self.interrupt_xbar.master
 
     def setTestBinary(self, binary_path):
         """Set up the SE process to execute the binary at binary_path"""
         from m5 import options
-        output = os.path.join(options.outdir, 'stdout')
-
         self.cpu.workload = Process(
                                     cmd = [binary_path])
         self.cpu.createThreads()

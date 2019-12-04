@@ -54,8 +54,9 @@ if __name__ == "__main__":
     num_cpus = ['1']#, '2', '4', '8']
     cpu_types = ['Simple','DefaultO3'] 
     #mem_types = ['classic']#, 'ruby']
-    mem_latency = ['Slow'] #, 'Slow', 'Inf' 'SingleCycle']
+    mem_latency = ['Inf','SingleCycle'] #, 'Slow', 'Inf' 'SingleCycle']
     config='config1' #'config2''config3'
+
     full_list =['CCa','CCe','CCh', 'CCh_st', 'CCl','CCm','CF1','CRd','CRf','CRm',
     'CS1','CS3','DP1d','DP1f','DPcvt','DPT','DPTd','ED1','EF','EI','EM1','EM5',
     'MD','MC','MCS','M_Dyn','MI','MIM','MIM2','MIP','ML2','ML2_BW_ld','ML2_BW_ldst',
@@ -65,9 +66,8 @@ if __name__ == "__main__":
     memorybenchmarks = ['MD','MC','MCS','M_Dyn','MI','MIM','MIM2','MIP','ML2','ML2_BW_ld','ML2_BW_ldst',
     'ML2_BW_st','ML2_st','MM','MM_st','STc','STL2','STL2b']
     main_Memorybenchmarks = []
-   
     bm_list = full_list
-
+L1Cache_sizes
     #Branchpredictors for cpus
     cpu_bp='Simple' #O3
     Simple_bp=('Simple_Local', 'Simple_BiMode', 'Simple_Tournament', 'Simple_LTAGE')
@@ -87,7 +87,7 @@ if __name__ == "__main__":
         bma='bench.ARM'
 
     path = 'microbench'
-
+    
     if config == 'config1':
       for mem in mem_latency:
         for bm in bm_list:
