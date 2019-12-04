@@ -21,12 +21,15 @@ experiments_repo = Artifact.registerArtifact(
 )
 
 gem5_repo = Artifact.registerArtifact(
-    command = 'git clone https://github.com/darchr/gem5',
+    command = '''git clone https://github.com/darchr/gem5 
+    cd gem5;
+    wget https://github.com/darchr/gem5/commit/38d07ab0251ea8f5181abc97a534bb60157b2b5d.patch;
+    git am 38d07ab0251ea8f5181abc97a534bb60157b2b5d.patch --reject;'''
     typ = 'git repo',
     name = 'gem5',
     path =  'gem5/',
     cwd = './',
-    documentation = 'git repo with gem5 master branch '
+    documentation = 'git repo with gem5 cloned on Nov 22 from googlesource (patch applied to support mem vector port)'
 )
 
 m5_binary = Artifact.registerArtifact(
@@ -67,7 +70,7 @@ if __name__ == "__main__":
     'ML2_BW_st','ML2_st','MM','MM_st','STc','STL2','STL2b']
     main_Memorybenchmarks = []
     bm_list = full_list
-L1Cache_sizes
+
     #Branchpredictors for cpus
     cpu_bp='Simple' #O3
     Simple_bp=('Simple_Local', 'Simple_BiMode', 'Simple_Tournament', 'Simple_LTAGE')

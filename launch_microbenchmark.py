@@ -49,8 +49,8 @@ gem5_binary = Artifact.registerArtifact(
 )
 
 if __name__ == "__main__":
-    boot_types = ['init', 'systemd']
-    num_cpus = ['1', '2', '4', '8']
+    #boot_types = ['init', 'systemd']
+    #num_cpus = ['1', '2', '4', '8']
     cpu_types = ['Simple','DefaultO3'] 
     mem_types = ['Slow']# [SingleCycle][Inf]
     full_list =['CCa','CCe','CCh', 'CCh_st', 'CCl','CCm','CF1','CRd','CRf','CRm',
