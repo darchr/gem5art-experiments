@@ -136,7 +136,7 @@ if __name__ == "__main__":
     # unavailable benchmarks: 400.perlbench,447.dealII,450.soplex,483.xalancbmk
 
     for cpu in cpus:
-        for size in sizes[cpu]:
+        for size in benchmark_sizes[cpu]:
             for benchmark in benchmarks:
                 run = gem5Run.createFSRun(
                     'gem5/build/X86/gem5.opt', # gem5_binary
