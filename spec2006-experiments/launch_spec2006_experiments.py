@@ -103,13 +103,13 @@ linux_binary = Artifact.registerArtifact(
 
 run_script_repo = Artifact.registerArtifact(
     command = '''
-        wget https://github.com/darchr/gem5art/blob/master/docs/configs-spec-tests/run_spec.py;
-        mkdir -p system;
-        cd system;
-        wget https://github.com/darchr/gem5art/blob/master/docs/configs-spec-tests/system/__init__.py;
-        wget https://github.com/darchr/gem5art/blob/master/docs/configs-spec-tests/system/caches.py;
-        wget https://github.com/darchr/gem5art/blob/master/docs/configs-spec-tests/system/fs_tools.py;
-        wget https://github.com/darchr/gem5art/blob/master/docs/configs-spec-tests/system/system.py;
+        wget https://raw.githubusercontent.com/darchr/gem5art/master/docs/configs-spec-tests/run_spec.py
+        mkdir -p system
+        cd system
+        wget https://raw.githubusercontent.com/darchr/gem5art/master/docs/configs-spec-tests/system/__init__.py
+        wget https://raw.githubusercontent.com/darchr/gem5art/master/docs/configs-spec-tests/system/caches.py
+        wget https://raw.githubusercontent.com/darchr/gem5art/master/docs/configs-spec-tests/system/fs_tools.py
+        wget https://raw.githubusercontent.com/darchr/gem5art/master/docs/configs-spec-tests/system/system.py
     ''',
     typ = 'git repo',
     name = 'gem5-configs',
