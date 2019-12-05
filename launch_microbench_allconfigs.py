@@ -24,7 +24,7 @@ gem5_repo = Artifact.registerArtifact(
     command = '''git clone https://github.com/darchr/gem5 
     cd gem5;
     wget https://github.com/darchr/gem5/commit/38d07ab0251ea8f5181abc97a534bb60157b2b5d.patch;
-    git am 38d07ab0251ea8f5181abc97a534bb60157b2b5d.patch --reject;'''
+    git am 38d07ab0251ea8f5181abc97a534bb60157b2b5d.patch --reject;''',
     typ = 'git repo',
     name = 'gem5',
     path =  'gem5/',
@@ -53,11 +53,8 @@ gem5_binary = Artifact.registerArtifact(
 )
 
 if __name__ == "__main__":
-    
-    num_cpus = ['1']#, '2', '4', '8']
     cpu_types = ['Simple','DefaultO3'] 
-    #mem_types = ['classic']#, 'ruby']
-    mem_latency = ['Inf','SingleCycle'] #, 'Slow', 'Inf' 'SingleCycle']
+    mem_latency = ['Inf','SingleCycle'] #['Slow', 'Inf' 'SingleCycle']
     config='config1' #'config2''config3'
 
     full_list =['CCa','CCe','CCh', 'CCh_st', 'CCl','CCm','CF1','CRd','CRf','CRm',
@@ -69,7 +66,8 @@ if __name__ == "__main__":
     memorybenchmarks = ['MD','MC','MCS','M_Dyn','MI','MIM','MIM2','MIP','ML2','ML2_BW_ld','ML2_BW_ldst',
     'ML2_BW_st','ML2_st','MM','MM_st','STc','STL2','STL2b']
     main_Memorybenchmarks = []
-    bm_list = full_list
+    bm_list =  full_list 
+
 
     #Branchpredictors for cpus
     cpu_bp='Simple' #O3
@@ -98,7 +96,7 @@ if __name__ == "__main__":
                     run = gem5Run.createSERun(
                         'gem5/build/X86/gem5.opt',
                         'configs-microbench-tests/run_allbenchmarks.py',
-                        'results/{}/run_config1/{}/{}/{}'.format(arch,mem,bm,cpu),
+                        'results/{}/run_allbenchmarks/{}/{}/{}'.format(arch,mem,bm,cpu),
                         gem5_binary, gem5_repo, experiments_repo,
                         cpu, mem, os.path.join(path,bm,bma))
                     #run_gem5_instance.apply_async((run,))
@@ -111,7 +109,7 @@ if __name__ == "__main__":
                         run = gem5Run.createSERun(
                                 'gem5/build/X86/gem5.opt',
                                 'configs-microbench-tests/run_controlbenchmarks.py',
-                                'results/{}/run_config2/{}/{}/{}/{}'.format(arch,mem,bm,cpu_bp,config_cpu), 
+                                'results/{}/run_controlbenchmarks/{}/{}/{}/{}'.format(arch,mem,bm,cpu_bp,config_cpu), 
                                 gem5_binary, gem5_repo, experiments_repo,
                                 config_cpu, mem, os.path.join(path,bm,bma))
                         #run_gem5_instance.apply_async((run,)) 
@@ -121,7 +119,7 @@ if __name__ == "__main__":
                         run = gem5Run.createSERun(
                                 'gem5/build/X86/gem5.opt',
                                 'configs-microbench-tests/run_controlbenchmarks.py',
-                                'results/{}/run_config2/{}/{}/{}/{}'.format(arch,mem,bm,cpu_bp,config_cpu), 
+                                'results/{}/run_controlbenchmarks.py/{}/{}/{}/{}'.format(arch,mem,bm,cpu_bp,config_cpu), 
                                 gem5_binary, gem5_repo, experiments_repo,
                                 config_cpu, mem, os.path.join(path,bm,bma))
                         #run_gem5_instance.apply_async((run,))
@@ -135,7 +133,7 @@ if __name__ == "__main__":
                                 run = gem5Run.createSERun(
                                 'gem5/build/X86/gem5.opt',
                                 'configs-microbench-tests/run_memorybenchmarks.py',
-                                'results/{}/run_config3/{}/{}/{}/L1_cache/{}'.format(arch,mem,bm,cpu,size), 
+                                'results/{}/run_memorybenchmarks/{}/{}/{}/L1_cache/{}'.format(arch,mem,bm,cpu,size), 
                                 gem5_binary, gem5_repo, experiments_repo,
                                 cpu, mem, size,'1MB', os.path.join(path,bm,bma))
                                 #run_gem5_instance.apply_async((run,))
@@ -145,14 +143,13 @@ if __name__ == "__main__":
                                 run = gem5Run.createSERun(
                                 'gem5/build/X86/gem5.opt',
                                 'configs-microbench-tests/run_memorybenchmarks.py',
-                                'results/{}/run_config3/{}/{}/{}/L2_cache/{}'.format(arch,mem,bm,cpu,size), 
+                                'results/{}/run_memorybenchmarks/{}/{}/{}/L2_cache/{}'.format(arch,mem,bm,cpu,size), 
                                 gem5_binary, gem5_repo, experiments_repo,
                                 cpu, mem,'32kB',size, os.path.join(path,bm,bma))
                                 #run_gem5_instance.apply_async((run,))
                                 run.run()
 
 
-                
 
     
 

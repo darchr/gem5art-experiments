@@ -139,9 +139,9 @@ class BaseTestSystem(System):
     _L2CacheSize = "1MB"
     #_L1ICacheSize = "32kB"
     def __init__(self):
+        
+        super(BaseTestSystem,self).__init__()
         if self._MemoryModel is SlowMemory:
-
-            super(BaseTestSystem,self).__init__()
             self.clk_domain = SrcClockDomain(clock = "3GHz",
                                              voltage_domain = VoltageDomain())
             self.mem_mode = 'timing'
@@ -206,6 +206,4 @@ class BaseTestSystem(System):
                                     cmd = [binary_path])
         self.cpu.createThreads()
 
-    def setTestProcess(self, process):
-        self.cpu.workload = process
-        self.cpu.createThreads()
+
