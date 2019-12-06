@@ -26,15 +26,15 @@
             "disk_size": "{{ user `image_size` }}",
             "floppy_files":
             [
-                "../shared/{{ user `preseed` }}"
+                "shared/{{ user `preseed` }}"
             ],
             "headless": "{{ user `headless` }}",
-            "http_directory": "../shared",
+            "http_directory": "shared",
             "iso_checksum": "{{ user `iso_checksum` }}",
             "iso_checksum_type": "{{ user `iso_checksum_type` }}",
             "iso_urls": [ "{{ user `iso_url` }}" ],
             "memory": "{{ user `vm_memory`}}",
-            "output_directory": "{{ user `image_name` }}-image",
+            "output_directory": "boot-exit/{{ user `image_name` }}-image",
             "qemuargs":
             [
                 [ "-cpu", "host" ],
@@ -44,7 +44,7 @@
             "shutdown_command": "echo '{{ user `ssh_password` }}'|sudo -S shutdown -P now",
             "ssh_password": "{{ user `ssh_password` }}",
             "ssh_username": "{{ user `ssh_username` }}",
-            "ssh_wait_timeout": "10m",
+            "ssh_wait_timeout": "60m",
             "vm_name": "{{ user `image_name` }}"
         }
     ],
@@ -52,17 +52,17 @@
     [
         {
             "type": "file",
-            "source": "exit.sh",
+            "source": "boot-exit/exit.sh",
             "destination": "/home/gem5/"
         },
         {
             "type": "file",
-            "source": "../../gem5/util/m5/m5",
+            "source": "../gem5/util/m5/m5",
             "destination": "/home/gem5/"
         },
         {
             "type": "file",
-            "source": "../shared/serial-getty@.service",
+            "source": "shared/serial-getty@.service",
             "destination": "/home/gem5/"
         },
         {
@@ -70,7 +70,7 @@
             "execute_command": "echo '{{ user `ssh_password` }}' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
             "scripts":
             [
-                "./post-installation.sh"
+                "boot-exit/post-installation.sh"
             ]
         }
     ],
