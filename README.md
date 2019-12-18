@@ -1,13 +1,14 @@
 # gem5art-experiments
 
 This repository contains different files (launch scripts, gem5 configuration files, disk image and linux configuration files) needed to run experiments with gem5art. 
-This README describes how to run different experiments with gem5art step-by-step and point to the detailed documentation on these experiments as well.
+This README describes how to run different experiments with gem5art step-by-step and points to the detailed documentation on these experiments as well.
 
-```
-Note: The user should make sure to create a local git repository containing all files for a particular experiment (from this repository), and add a remote to that repository as well.
+
+**Note:** The user should make sure to create a local git repository containing all files for a particular experiment (from this repository), and add a remote to that repository as well.
 
 The commands to do this:
 
+```
 git init
 git remote add origin https://your-remote-add/[any]-experiments.git
 ```
