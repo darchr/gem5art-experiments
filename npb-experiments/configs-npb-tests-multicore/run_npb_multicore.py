@@ -27,7 +27,7 @@
 # Authors: Jason Lowe-Power, Ayaz Akram
 
 """ Script to run NAS parallel benchmarks with gem5.
-    The script expects kernel, diskimage, cpu (kvm or atomic),
+    The script expects kernel, diskimage, cpu (kvm, atomic, or timing),
     benchmark to run and number of cpus as arguments.
 
     If your application has ROI annotations, this script will count the total
@@ -69,7 +69,7 @@ if __name__ == "__m5_main__":
     (opts, args) = SimpleOpts.parse_args()
     kernel, disk, cpu, benchmark, num_cpus = args
 
-    if not cpu in ['atomic', 'kvm']:
+    if not cpu in ['atomic', 'kvm', 'timing']:
         m5.fatal("cpu not supported")
 
     # create the system we are going to simulate
@@ -111,9 +111,11 @@ if __name__ == "__m5_main__":
         m5.stats.reset()
         start_tick = m5.curTick()
         start_insts = system.totalInsts()
-        # switching to atomic cpu if argument cpu == atomic
+        # switching cpu if argument cpu == atomic or timing
         if cpu == 'atomic':
             system.switchCpus(system.cpu, system.atomicCpu)
+        if cpu == 'timing':
+            system.switchCpus(system.cpu, system.timingCpu)
     else:
         print("Unexpected termination of simulation !")
         exit()
@@ -122,7 +124,7 @@ if __name__ == "__m5_main__":
     exit_event = m5.simulate()
 
     # Reached the end of ROI
-    # Finish executing the benchmark with kvm cpu
+    # Finish executing the benchmark
 
     print("Dump stats at the end of the ROI!")
     m5.stats.dump()
@@ -130,9 +132,11 @@ if __name__ == "__m5_main__":
     end_insts = system.totalInsts()
     m5.stats.reset()
 
-    # switch cpu back to kvm if atomic was used for ROI
+    # switch cpu back to kvm if atomic/timing was used for ROI
     if cpu == 'atomic':
         system.switchCpus(system.atomicCpu, system.cpu)
+    if cpu == 'timing':
+        system.switchCpus(system.timingCpu, system.cpu)
 
     # Simulate the remaning part of the benchmark
     exit_event = m5.simulate()

@@ -109,8 +109,14 @@ class MySystem(LinuxX86System):
             for i,cpu in enumerate(self.cpu):
                 for obj in cpu.descendants():
                     obj.eventq_index = 0
-                cpu.eventq_index = i + 1
 
+                # the number of eventqs are set based
+                # on experiments with few benchmarks
+
+                if len(self.cpu) > 16:
+                    cpu.eventq_index = (i/4) + 1
+                else:
+                    cpu.eventq_index = (i/2) + 1
     def getHostParallel(self):
         return self._host_parallel
 
@@ -137,7 +143,7 @@ class MySystem(LinuxX86System):
                               for i in range(num_cpus)]
             map(lambda c: c.createThreads(), self.atomicCpu)
 
-        self.timingCpu = [DerivO3CPU(cpu_id = i,
+        self.timingCpu = [TimingSimpleCPU(cpu_id = i,
                                      switched_out = True)
 				   for i in range(num_cpus)]
 
