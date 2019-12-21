@@ -1,6 +1,6 @@
 # gem5art-experiments
 
-This repository contains different files (launch scripts, gem5 configuration files, disk image and linux configuration files) needed to run experiments with gem5art. 
+This repository contains different files (launch scripts, gem5 configuration files, disk image and linux configuration files) needed to run experiments with gem5art.
 This README describes how to run different experiments with gem5art step-by-step and points to the detailed documentation on these experiments as well.
 
 
@@ -191,8 +191,8 @@ To build gem5:
 git clone https://gem5.googlesource.com/public/gem5
 cd gem5
 git remote add darchr https://github.com/darchr/gem5
-git fetch darchr  
-git cherry-pick 6450aaa7ca9e3040fb9eecf69c51a01884ac370c  
+git fetch darchr
+git cherry-pick 6450aaa7ca9e3040fb9eecf69c51a01884ac370c
 git cherry-pick 3403665994b55f664f4edfc9074650aaa7ddcd2c
 scons build/X86/gem5.opt -j8
 ```
@@ -285,7 +285,7 @@ Type=forking
 User=celery
 Group=celery
 EnvironmentFile=-/etc/conf.d/celery
-WorkingDirectory=/data1/celery
+WorkingDirectory=/opt/celery
 ExecStart=/bin/sh -c '${CELERY_BIN} multi start $CELERYD_NODES \
 	-A $CELERY_APP --pidfile=${CELERYD_PID_FILE} --logfile=${CELERYD_LOG_FILE} \
 	--loglevel="${CELERYD_LOG_LEVEL}" $CELERYD_OPTS'
@@ -311,11 +311,11 @@ The `EnvironmentFile` we are using is here:
 CELERY_APP="gem5art.tasks"
 CELERYD_NODES="worker"
 CELERYD_OPTS="--autoscale=48,0"
-CELERY_BIN="/data1/celery/virtualenv/bin/celery"
-CELERYD_PID_FILE="/data1/celery/%n.pid"
-CELERYD_LOG_FILE="/data1/celery/%n%I.log"
+CELERY_BIN="/opt/celery/virtualenv/bin/celery"
+CELERYD_PID_FILE="/opt/celery/%n.pid"
+CELERYD_LOG_FILE="/opt/celery/%n%I.log"
 CELERYD_LOG_LEVEL="INFO"
-CELERYD_CHDIR="/data1/celery/"
+CELERYD_CHDIR="/opt/celery/"
 CELERYD_USER="celery"
 CELERYD_GROUP="celery"
 CELERY_CREATE_DIRS=1
@@ -324,7 +324,7 @@ CELERY_CREATE_DIRS=1
 One of the important environment variable used above is `CELERYD_OPTS`, which determines how many worker threads will be used by the celery server.
 You can modify this based on your own system.
 
-We need to install the gem5art package to a python virtual environment in our working directory for celery (/data1/celery in our case):
+We need to install the gem5art package to a python virtual environment in our working directory for celery (/opt/celery in our case):
 
 ```sh
 virtualenv -p python3 venv
@@ -347,7 +347,7 @@ systemctl start celery.service
 Since, some of the gem5 jobs use kvm, we need to add `celery` user to the kvm group as well:
 
 ```sh
-adduser celery kvm
+usermod -a -G kvm celery
 ```
 
 In order for this change (and other similar changes) to make an effect, we need to restart the celery service:
