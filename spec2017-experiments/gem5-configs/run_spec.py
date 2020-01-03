@@ -111,10 +111,10 @@ def parse_arguments():
                         action = "store_true",
                         help = "Not copy SPEC run logs to the host system;"
                                "Logs are copied by default")
-    parser.add_argument("-z", "--no-listeners", default = False,
+    parser.add_argument("-z", "--no-listeners", default = True,
                         action = "store_true",
                         help = "Turn off ports;"
-                               "The ports are on by default")
+                               "The ports are off by default")
     return parser.parse_args()
 
 def getDetailedCPUModel(cpu_name):
