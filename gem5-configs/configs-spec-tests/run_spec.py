@@ -80,6 +80,7 @@ from m5.objects import *
 
 import argparse
 
+sys.path.append('../')
 from system import MySystem
 
 
