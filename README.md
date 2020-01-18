@@ -13,7 +13,7 @@ There are 3 main configuration which can be run using this launchscript.
 - General Configuration : 
 This is a basic configuration to run all benchmarks for all specified CPU for a fixed branchpredictor.
 
-    In the script set:
+    In the script , set:
         
     ```python
     config = config1
@@ -22,7 +22,7 @@ This is a basic configuration to run all benchmarks for all specified CPU for a 
 - Different Branch Predictors:
 This is a configuration to run all benchmarks for a CPU using different branch predictors.
 
-    In the script set:
+    In the script , set:
 
     ```python
     config = config2
@@ -31,7 +31,8 @@ This is a configuration to run all benchmarks for a CPU using different branch p
     ```
 - Difefrent cache size.
 This is a  configuration to run experiments with different L1 cache size with L2 size fixed or  different L2 cache size with L1 size fixed
-    In the script set:
+   
+    In the script , set:
 
     ```python
     config = config3
@@ -46,7 +47,7 @@ This is a  configuration to run experiments with different L1 cache size with L2
 
 All these configuration can also be run for various other ISA.
    
-   In the script set:
+   In the script , set:
    ```python
     arch = 'X86' #(ARM)
 ```
