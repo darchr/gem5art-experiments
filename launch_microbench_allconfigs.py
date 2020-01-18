@@ -22,14 +22,12 @@ experiments_repo = Artifact.registerArtifact(
 
 gem5_repo = Artifact.registerArtifact(
     command = '''git clone https://github.com/darchr/gem5 
-    cd gem5;
-    wget https://github.com/darchr/gem5/commit/38d07ab0251ea8f5181abc97a534bb60157b2b5d.patch;
-    git am 38d07ab0251ea8f5181abc97a534bb60157b2b5d.patch --reject;''',
+    cd gem5''',
     typ = 'git repo',
     name = 'gem5',
     path =  'gem5/',
     cwd = './',
-    documentation = 'git repo with gem5 cloned on Nov 22 from googlesource (patch applied to support mem vector port)'
+    documentation = 'git repo with gem5 cloned on Nov 22 from DarchR (patch shd be applied to support mem vector port)'
 )
 
 m5_binary = Artifact.registerArtifact(
@@ -65,11 +63,11 @@ if __name__ == "__main__":
     'CS1','CS3']
     memorybenchmarks = ['MD','MC','MCS','M_Dyn','MI','MIM','MIM2','MIP','ML2','ML2_BW_ld','ML2_BW_ldst',
     'ML2_BW_st','ML2_st','MM','MM_st','STc','STL2','STL2b']
-    main_Memorybenchmarks = []
+    main_Memorybenchmarks = ['MM','MM_st','STc','STL2','STL2b']
     bm_list =  full_list 
 
 
-    #Branchpredictors for cpus
+    #cpus for branchpredictors
     cpu_bp='Simple' #O3
     Simple_bp=('Simple_Local', 'Simple_BiMode', 'Simple_Tournament', 'Simple_LTAGE')
     DefaultO3_bp=('DefaultO3_Local' ,'DefaultO3_BiMode', 'DefaultO3_Tournament','DefaultO3_LTAGE')
@@ -138,7 +136,7 @@ if __name__ == "__main__":
                                 cpu, mem, size,'1MB', os.path.join(path,bm,bma))
                                 #run_gem5_instance.apply_async((run,))
                                 run.run()
-                        if cache_type=='L2_cache':
+                        if cache_type =='L2_cache':
                             for size in L2C:
                                 run = gem5Run.createSERun(
                                 'gem5/build/X86/gem5.opt',
