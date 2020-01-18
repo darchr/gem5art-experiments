@@ -48,7 +48,6 @@ from m5.util.convert import toLatency
 sys.path.append('configs/common/') # For the next line...
 import SimpleOpts
 
-sys.path.append('../')
 from system import MySystem
 
 SimpleOpts.add_option("--script", default='',
