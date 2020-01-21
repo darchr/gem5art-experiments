@@ -78,7 +78,7 @@ if __name__ == "__main__":
                                             default='L1_cache',help = "cache type for memory experiment")
     args  = parser.parse_args()
 
-    config = agrs.config
+    config = args.config
     bm_list =  args.bm_list
     
     cpu_bp= args.cpu
