@@ -55,7 +55,7 @@ gem5_binary = Artifact.registerArtifact(
 
 if __name__ == "__main__":
 
-    full_list =['CCa','CCe','CCh', 'CCh_st', 'CCl','CCm','CF1','CRd','CRf','CRm',
+    allbenchmarks =['CCa','CCe','CCh', 'CCh_st', 'CCl','CCm','CF1','CRd','CRf','CRm',
     'CS1','CS3','DP1d','DP1f','DPcvt','DPT','DPTd','ED1','EF','EI','EM1','EM5',
     'MD','MC','MCS','M_Dyn','MI','MIM','MIM2','MIP','ML2','ML2_BW_ld','ML2_BW_ldst',
     'ML2_BW_st','ML2_st','MM','MM_st','STc','STL2','STL2b']
@@ -64,18 +64,18 @@ if __name__ == "__main__":
     memorybenchmarks = ['MD','MC','MCS','M_Dyn','MI','MIM','MIM2','MIP','ML2','ML2_BW_ld','ML2_BW_ldst',
     'ML2_BW_st','ML2_st','MM','MM_st','STc','STL2','STL2b']
     main_memorybenchmarks = ['MM','MM_st','STc','STL2','STL2b']
- 
+
+    valid_bm = [ allbenchmarks,controlbenchmarks,memorybenchmarks,main_memorybenchmarks]
+    valid_bm =  {cls.__name__:cls for cls in valid_bm}
+
     cpu_types = ['Simple','DefaultO3'] 
     mem_latency = ['Inf','SingleCycle','Slow'] 
-    
-
-    
     
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', choices = ['config_base','config_controlbenchmarks','config_memorybenchmarks']
                                                ,default='config_base',help = "type of experiment you want to run")
-    parser.add_argument('--bm_list', choices =['full_list','controlbenchmarks','memorybenchmarks','main_memorybenchmarks']
-                                            ,default=full_list, help = "benchmark suite to run the experiment")
+    parser.add_argument('--bm_list', choices = valid_bm.keys()
+                                            ,default=allbenchmarks, help = "benchmark suite to run the experiment")
     parser.add_argument('--cpu', choices = ['Simple','O3'], default='Simple',help="cpu choice for controlbenchmark experiments.")
     parser.add_argument('--cache_type', type = str, choices = ['L1_cache','L2_cache'],
                                             default='L1_cache',help = "cache type modified for memorybenchmarks experiment")
