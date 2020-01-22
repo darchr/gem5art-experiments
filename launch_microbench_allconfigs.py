@@ -65,8 +65,11 @@ if __name__ == "__main__":
     'ML2_BW_st','ML2_st','MM','MM_st','STc','STL2','STL2b']
     main_memorybenchmarks = ['MM','MM_st','STc','STL2','STL2b']
 
-    valid_bm = [ allbenchmarks,controlbenchmarks,memorybenchmarks,main_memorybenchmarks]
-    valid_bm =  {cls.__name__:cls for cls in valid_bm}
+    valid_bm =  { 'all':allbenchmarks,
+                  'control':controlbenchmarks,
+                  'memory':memorybenchmarks,
+                  'main_memory':main_memorybenchmarks
+                }
 
     cpu_types = ['Simple','DefaultO3'] 
     mem_latency = ['Inf','SingleCycle','Slow'] 
@@ -75,14 +78,14 @@ if __name__ == "__main__":
     parser.add_argument('--config', choices = ['config_base','config_controlbenchmarks','config_memorybenchmarks']
                                                ,default='config_base',help = "type of experiment you want to run")
     parser.add_argument('--bm_list', choices = valid_bm.keys()
-                                            ,default=allbenchmarks, help = "benchmark suite to run the experiment")
+                                            ,default='all', help = "benchmark suite to run the experiment")
     parser.add_argument('--cpu', choices = ['Simple','O3'], default='Simple',help="cpu choice for controlbenchmark experiments.")
     parser.add_argument('--cache_type', type = str, choices = ['L1_cache','L2_cache'],
                                             default='L1_cache',help = "cache type modified for memorybenchmarks experiment")
     args  = parser.parse_args()
 
     config = args.config
-    bm_list =  args.bm_list
+    bm_list =  valid_bm[args.bm_list]
 
     cpu_bp= args.cpu
     Simple_bp=('Simple_Local', 'Simple_BiMode', 'Simple_Tournament', 'Simple_LTAGE')
