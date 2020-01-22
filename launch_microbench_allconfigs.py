@@ -71,7 +71,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', choices = ['config_base','config_controlbenchmarks','config_memorybenchmarks']
                                                ,default='config_base',help = "type of experiment you want to run")
-    parser.add_argument('--bm_list',choices =[full_list,controlbenchmarks,memorybenchmarks,main_memorybenchmarks]
+    parser.add_argument('--bm_list',choices =['full_list','controlbenchmarks','memorybenchmarks','main_memorybenchmarks']
                                             ,default=full_list, help = "benchmark suite to run the experiment")
     parser.add_argument('--cpu', choices = ['Simple','O3'], default='Simple',help="cpu choice for controlbenchmark experiments.")
     parser.add_argument('--cache_type', type = str, choices = ['L1_cache','L2_cache'],
