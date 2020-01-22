@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-#This is a job launch script for microbenchmark tests
+#This is a job launch script to run basic microbenchmark experiment for all cpu.
 
 import os
 import sys
@@ -73,9 +73,9 @@ if __name__ == "__main__":
     for mem in mem_types:
         for bm in bm_list:
             for cpu in cpu_types:
-                    run = gem5Run.createSERun(
+                    run = gem5Run.createSERun('X86_microbenchmarks_{}_{}_{}'.format(mem,bm,cpu),
                         'gem5/build/X86/gem5.opt',
-                        'configs-microbench-tests/run_micro_temp.py',
+                        'configs-microbench-tests/run_micro.py',
                         'results/X86/run_micro/{}/{}/{}'.format(mem,bm,cpu),
                         gem5_binary, gem5_repo, experiments_repo,
                         cpu, mem, os.path.join(path,bm,bma))
