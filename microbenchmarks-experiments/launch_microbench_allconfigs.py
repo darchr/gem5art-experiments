@@ -120,7 +120,7 @@ if __name__ == "__main__":
       for mem in mem_latency:
         for bm in bm_list:
             for cpu in cpu_types:
-                    run = gem5Run.createSERun('X86_config_base_{}_{}_{}'.format(mem,bm,cpu),
+                    run = gem5Run.createSERun('X86_config_base_{}'.format(args.bm_list),
                         'gem5/build/X86/gem5.opt',
                         'configs-microbench-tests/run_allbenchmarks.py',
                         'results/X86/run_allbenchmarks/{}/{}/{}'.format(mem,bm,cpu),
@@ -133,7 +133,7 @@ if __name__ == "__main__":
             for bm in bm_list:
                 if cpu_bp == 'Simple':
                     for config_cpu in Simple_bp:
-                        run = gem5Run.createSERun('X86_config_control_{}_{}_{}_{}'.format(mem,bm,cpu_bp,config_cpu),
+                        run = gem5Run.createSERun('X86_config_control_{}_{}'.format(args.bm_list,cpu_bp),
                                 'gem5/build/X86/gem5.opt',
                                 'configs-microbench-tests/run_controlbenchmarks.py',
                                 'results/X86/run_controlbenchmarks/{}/{}/{}/{}'.format(mem,bm,cpu_bp,config_cpu), 
@@ -142,7 +142,7 @@ if __name__ == "__main__":
                         run.run()  
                 elif cpu_bp == 'O3':
                     for config_cpu in  DefaultO3_bp:
-                        run = gem5Run.createSERun('X86_config_control_{}_{}_{}_{}'.format(mem,bm,cpu_bp,config_cpu),
+                        run = gem5Run.createSERun('X86_config_control_{}_{}'.format(args.bm_list,cpu_bp),
                                 'gem5/build/X86/gem5.opt',
                                 'configs-microbench-tests/run_controlbenchmarks.py',
                                 'results/X86/run_controlbenchmarks.py/{}/{}/{}/{}'.format(mem,bm,cpu_bp,config_cpu), 
@@ -156,7 +156,7 @@ if __name__ == "__main__":
                 for cpu in cpu_types:
                         if cache_type =='L1_cache':
                             for size in L1D:
-                                run = gem5Run.createSERun('X86_config_memory_{}_{}_{}_L1_cache_{}'.format(mem,bm,cpu,size),
+                                run = gem5Run.createSERun('X86_config_memory_{}_L1_cache'.format(args.bm_list),
                                 'gem5/build/X86/gem5.opt',
                                 'configs-microbench-tests/run_memorybenchmarks.py',
                                 'results/X86/run_memorybenchmarks/{}/{}/{}/L1_cache/{}'.format(mem,bm,cpu,size), 
@@ -165,7 +165,7 @@ if __name__ == "__main__":
                                 run.run()
                         if cache_type =='L2_cache':
                             for size in L2C:
-                                run = gem5Run.createSERun('X86_config_memory_{}_{}_{}_L2_cache_{}'.format(mem,bm,cpu,size),
+                                run = gem5Run.createSERun('X86_config_memory_{}_L2_cache'.format(args.bm_list),
                                 'gem5/build/X86/gem5.opt',
                                 'configs-microbench-tests/run_memorybenchmarks.py',
                                 'results/X86/run_memorybenchmarks/{}/{}/{}/L2_cache/{}'.format(mem,bm,cpu,size), 
