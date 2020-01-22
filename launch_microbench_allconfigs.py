@@ -71,7 +71,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', choices = ['config_base','config_controlbenchmarks','config_memorybenchmarks']
                                                ,default='config_base',help = "type of experiment you want to run")
-    parser.add_argument('--bm_list',choices =['full_list','controlbenchmarks','memorybenchmarks','main_memorybenchmarks']
+    parser.add_argument('--bm_list',type = list , choices =[full_list,controlbenchmarks,memorybenchmarks,main_memorybenchmarks]
                                             ,default=full_list, help = "benchmark suite to run the experiment")
     parser.add_argument('--cpu', choices = ['Simple','O3'], default='Simple',help="cpu choice for controlbenchmark experiments.")
     parser.add_argument('--cache_type', type = str, choices = ['L1_cache','L2_cache'],
@@ -116,7 +116,7 @@ if __name__ == "__main__":
                         'configs-microbench-tests/run_allbenchmarks.py',
                         'results/X86/run_allbenchmarks/{}/{}/{}'.format(mem,bm,cpu),
                         gem5_binary, gem5_repo, experiments_repo,
-                        cpu, mem, os.path.join(path,bm,bma))
+                        cpu, mem, os.path.join(path,bm,'bench.X86'))
                     run.run() 
     elif config == 'config_controlbenchmarks':
         for mem in mem_latency:
@@ -128,7 +128,7 @@ if __name__ == "__main__":
                                 'configs-microbench-tests/run_controlbenchmarks.py',
                                 'results/X86/run_controlbenchmarks/{}/{}/{}/{}'.format(mem,bm,cpu_bp,config_cpu), 
                                 gem5_binary, gem5_repo, experiments_repo,
-                                config_cpu, mem, os.path.join(path,bm,bma))
+                                config_cpu, mem, os.path.join(path,bm,'bench.X86'))
                         run.run()  
                 elif cpu_bp == 'O3':
                     for config_cpu in  DefaultO3_bp:
@@ -137,7 +137,7 @@ if __name__ == "__main__":
                                 'configs-microbench-tests/run_controlbenchmarks.py',
                                 'results/X86/run_controlbenchmarks.py/{}/{}/{}/{}'.format(mem,bm,cpu_bp,config_cpu), 
                                 gem5_binary, gem5_repo, experiments_repo,
-                                config_cpu, mem, os.path.join(path,bm,bma))
+                                config_cpu, mem, os.path.join(path,bm,'bench.X86'))
                         run.run()
     elif config =='config_memorybenchmarks':
         for mem in mem_latency:
@@ -150,7 +150,7 @@ if __name__ == "__main__":
                                 'configs-microbench-tests/run_memorybenchmarks.py',
                                 'results/X86/run_memorybenchmarks/{}/{}/{}/L1_cache/{}'.format(mem,bm,cpu,size), 
                                 gem5_binary, gem5_repo, experiments_repo,
-                                cpu, mem, size,'1MB', os.path.join(path,bm,bma))
+                                cpu, mem, size,'1MB', os.path.join(path,bm,'bench.X86'))
                                 run.run()
                         if cache_type =='L2_cache':
                             for size in L2C:
@@ -159,7 +159,7 @@ if __name__ == "__main__":
                                 'configs-microbench-tests/run_memorybenchmarks.py',
                                 'results/X86/run_memorybenchmarks/{}/{}/{}/L2_cache/{}'.format(mem,bm,cpu,size), 
                                 gem5_binary, gem5_repo, experiments_repo,
-                                cpu, mem,'32kB',size, os.path.join(path,bm,bma))
+                                cpu, mem,'32kB',size, os.path.join(path,bm,'bench.X86'))
                                 run.run()
 
 
