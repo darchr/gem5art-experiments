@@ -28,7 +28,7 @@ for linux in linuxes:
             for num_cpu in num_cpus:
                 for mem in mem_types:
                     name_exists = 0
-                    for i in db.artifacts.find({'outdir':'/fasthome/aakahlow/boot_tests/results/run_exit/vmlinux-{}/boot-exit/{}/{}/{}/{}'.format(linux, cpu, mem, num_cpu, boot_type)}):
+                    for i in db.artifacts.find({'outdir':'/fasthome/aakahlow/boot_tests/results/run_exit/vmlinux-{}/boot-exit/{}/{}/{}/{}'.format(linux, cpu, mem, num_cpu, boot_type)}).sort('current_time', 1):
                         if 'name' in i.keys():
                             name_exists = 1
                     # if the run object does not have a name field, add it
