@@ -9,14 +9,15 @@
 
 ### launch_microbench_allconfig.py
 
-There are many different experiments which can be run uding this launch script using various parameters.
+There are many different experiments which can be run using this launch script with the help of various command_line parameters.
 
-Use Option to select the configuration you want to run:
+Use  the below Option to select the configuration you want to run:
 
- --config [congig_base, config_control, config_memory]
+ --config [config_base, config_control, config_memory]
 
 - Config_base:
-   Used to run basic microbenchmark experiment for all cpu.
+   
+   To run basic microbenchmark experiment for all cpu.
 
     | Options   | Choices                          | Default |
     |-----------|----------------------------------|---------|
@@ -34,7 +35,7 @@ Use Option to select the configuration you want to run:
 
 - config_memory:
 
-    Run microbenchmark experiments for all cpu with different L1 or L2 cache size.
+    To run microbenchmark experiments for all cpu with different L1 or L2 cache size.
 
     | options      | choices                           | default  |
     |--------------|-----------------------------------|----------|
