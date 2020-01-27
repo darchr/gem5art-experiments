@@ -1,22 +1,22 @@
-% Python byte code
+# Python byte code
 *.pyc
 
-% Python virtual environment
+# Python virtual environment
 venv
 gem5art-env
 
-% VSCode stuffs
+# VSCode stuffs
 .vscode
 
-% gem5 repos
+# gem5 repos
 gem5
 old-gem5
 
-% gem5 results
+# gem5 results
 m5out
 results
 
-% packer binaries and the disk images
+# packer binaries and the disk images
 disk-image/packer
 disk-image/packer_1.4.3_linux_amd64.zip
 disk-image/boot-exit/boot-exit-image/boot-exit
@@ -27,10 +27,10 @@ disk-image/spec2006/CPU2006v1.0.1.iso
 disk-image/spec2017/spec2017-image/spec2017
 disk-image/spec2017/cpu2017-1.1.0.iso
 
-% Linux repos
+# Linux repos
 linux-stable/
 linux-4.19.83/
 
-% benchmarks
+# benchmarks
 microbench
 
