@@ -1,0 +1,8 @@
+*.pyc
+m5out
+.vscode
+results
+gem5
+venv
+microbench
+old-gem5
