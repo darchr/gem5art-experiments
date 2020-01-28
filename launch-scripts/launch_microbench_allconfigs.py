@@ -91,8 +91,8 @@ if __name__ == "__main__":
     bm_list =  valid_bm[args.bm_list]
 
     cpu_bp= args.cpu
-    Simple_bp=('Simple_Local', 'Simple_BiMode', 'Simple_Tournament', 'Simple_LTAGE')
-    DefaultO3_bp=('DefaultO3_Local' ,'DefaultO3_BiMode', 'DefaultO3_Tournament','DefaultO3_LTAGE')
+    Simple_bp=['Simple_Local', 'Simple_BiMode', 'Simple_Tournament', 'Simple_LTAGE']
+    DefaultO3_bp=['DefaultO3_Local' ,'DefaultO3_BiMode', 'DefaultO3_Tournament','DefaultO3_LTAGE']
     
     cache_type = args.cache_type 
     #L1Cache_sizes.
