@@ -115,7 +115,7 @@ The required files are as follows:
 
 In case of confusion on the directory structure to keep these files, refer to the gem5art npb tests [tutorial](https://gem5art.readthedocs.io/en/latest/tutorials/npb-tutorial.html).
 
-Once, you have downloaded all the files from [npb-experiments](npb-experiments/) folder of this repo, follow the following steps to run these experiments:
+Once, you have downloaded all the required files from this repo, follow the following steps to run these experiments:
 
 To create python3 virtual environment:
 
