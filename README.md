@@ -4,7 +4,7 @@ This repository contains different files (launch scripts, gem5 configuration fil
 This README describes how to run different experiments with gem5art step-by-step and points to the detailed documentation on these experiments as well.
 
 
-**Note:** The user should make sure to create a local git repository containing all files for a particular experiment (from this repository), and add a remote to that repository as well.
+**Note:** The user should make sure to create a local git repository containing all files for a particular experiment (which can be accessed from this repository), and add a remote to that repository as well.
 
 The commands to do this:
 
@@ -15,7 +15,19 @@ git remote add origin https://your-remote-add/[any]-experiments.git
 
 ## Steps to Run Full System Linux Boot Tests
 
-Once, you have downloaded all the files from [boot-experiments](boot-experiments/) folder of this repo, follow the following steps to run full system linux boot tests:
+First, you have to download all the required files needed to run these experiments from this repo.
+The required files are as follows:
+
+- [gem5 configurations for boot tests](gem5-configs/configs-boot-tests)
+- [disk image files specific for boot tests](disk-images/boot-exit)
+- [disk image files shared among all experiments](disk-images/shared)
+- [launch script for boot tests](launch-scripts/launch_boot_tests.py)
+- [Linux kernel configuration files](linux-configs/)
+- [.gitignore file](.gitignore)
+
+In case of confusion on the directory structure to keep these files, refer to the gem5art boot tests [tutorial](https://gem5art.readthedocs.io/en/latest/tutorials/boot-tutorial.html).
+
+Once, you have downloaded all these files, follow the following steps to run full system linux boot tests:
 
 To create python3 virtual environment:
 
@@ -64,7 +76,6 @@ cp vmlinux vmlinux-{version-no: e.g. 5.2.3}
 ```
 Repeat the above compiling commands for other four linux versions (v4.19.83, v4.14.134, v4.9.186, v4.4.186).
 
-
 Run the database (if not already running) using (run this command after creating a directory):
 
 ```sh
@@ -79,16 +90,30 @@ celery -E -A gem5art.tasks.celery worker --autoscale=[number of workers],0
 
 For users inside DArchR follow these [steps](#using-shared-celery-server), to run your experiments using centralized celery server.
 
-Finally, run the [launch script](boot-experiments/launch_boot_tests.py) to start running these experiments:
+Finally, run the [launch script](launch-scripts/launch_boot_tests.py) to start running these experiments:
 
 ```sh
 python launch_boot_tests.py
 ```
 
-Details of these experiments can be seen in a tutorial [here](https://gem5art.readthedocs.io/en/latest/boot-tutorial.html).
+Details of these experiments can be seen in a tutorial [here](https://gem5art.readthedocs.io/en/latest/tutorials/boot-tutorial.html).
 
+Results of these experiments are available [here](results/boot-experiments/boot_tests_gem5art.ipynb)
 
 ## Steps to Run NAS Parallel Benchmarks
+
+As in boot tests, you will have to download all the required files needed to run these experiments from this gem5art-experiments repo.
+
+The required files are as follows:
+
+- [gem5 configurations for npb tests](gem5-configs/configs-npb-tests)
+- [disk image files specific for npb tests](disk-images/npb)
+- [disk image files shared among all experiments](disk-images/shared)
+- [launch script for npb tests](launch-scripts/launch_npb_tests.py)
+- [Linux kernel configuration file for kernel 4.19.83](linux-configs/config.4.19.83)
+- [.gitignore file](.gitignore)
+
+In case of confusion on the directory structure to keep these files, refer to the gem5art npb tests [tutorial](https://gem5art.readthedocs.io/en/latest/tutorials/npb-tutorial.html).
 
 Once, you have downloaded all the files from [npb-experiments](npb-experiments/) folder of this repo, follow the following steps to run these experiments:
 
@@ -161,14 +186,15 @@ celery -E -A gem5art.tasks.celery worker --autoscale=[number of workers],0
 
 For users inside DArchR follow these [steps](#using-shared-celery-server), to run your experiments using centralized celery server.
 
-Finally, run the [launch script](npb-experiments/launch_npb_tests.py) to start running these experiments:
+Finally, run the [launch script](launch-scripts/launch_npb_tests.py) to start running these experiments:
 
 ```sh
 python launch_npb_tests.py
 ```
 
-Details of these experiments can be seen in a tutorial [here](https://gem5art.readthedocs.io/en/latest/npb-tutorial.html).
+Details of these experiments can be seen in a tutorial [here](https://gem5art.readthedocs.io/en/latest/tutorials/npb-tutorial.html).
 
+Results of these experiments are available [here](results/npb-experiments/npb_gem5art.ipynb).
 
 ## Steps to Run SPEC CPU 2006 Benchmarks
 
@@ -308,7 +334,7 @@ Use  the below Option to select the configuration you want to run:
  --config [config_base, config_control, config_memory]
 
 - Config_base:
-   
+
    To run basic microbenchmark experiment for all cpu.
 
     | Options   | Choices                          | Default |
@@ -317,7 +343,7 @@ Use  the below Option to select the configuration you want to run:
     |           |                                  |         |
 
 - config_control:
-     
+
     To run microbenchmark experiments using different branch preidctors for selected CPU.
 
     | Options   | Choices                           | Default |
