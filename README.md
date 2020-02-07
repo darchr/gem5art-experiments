@@ -178,76 +178,76 @@ The following are commands to re-create the experiment described [here](https://
 
 To copy disk image scripts, gem5 run scripts, linux config files, and the launch scripts,
 ``sh
-git clone https://github.com/darchr/gem5art-experiments
-mkdir gem5art-spec-experiment
-mkdir gem5art-spec-experiment/disk-image
-mkdir gem5art-spec-experiment/gem5-configs
-mkdir gem5art-spec-experiment/linux-configs
-mkdir gem5art-spec-experiment/results
-cp -r gem5art-experiments/disk-images/spec2006 gem5art-spec-experiment/disk-image/
-cp -r gem5art-experiments/disk-images/spec2017 gem5art-spec-experiment/disk-image/
-cp -r gem5art-experiments/disk-images/shared gem5art-spec-experiment/disk-image/
-cp -r gem5art-experiments/gem5-configs/configs-spec-tests/* gem5art-spec-experiment/gem5-configs/
-cp -r gem5art-experiments/linux-configs/config.4.19.83 gem5art-spec-experiment/linux-configs/
-cp -r gem5art-experiments/launch-scripts/launch_spec2006_experiments.py gem5art-spec-experiment/
-cp -r gem5art-experiments/launch-scripts/launch_spec2017_experiments.py gem5art-spec-experiment/
-cp -r gem5art-experiments/.gitignore gem5art-spec-experiment/
+git clone https://github.com/darchr/gem5art-experiments  
+mkdir gem5art-spec-experiment  
+mkdir gem5art-spec-experiment/disk-image  
+mkdir gem5art-spec-experiment/gem5-configs  
+mkdir gem5art-spec-experiment/linux-configs  
+mkdir gem5art-spec-experiment/results  
+cp -r gem5art-experiments/disk-images/spec2006 gem5art-spec-experiment/disk-image/  
+cp -r gem5art-experiments/disk-images/spec2017 gem5art-spec-experiment/disk-image/  
+cp -r gem5art-experiments/disk-images/shared gem5art-spec-experiment/disk-image/  
+cp -r gem5art-experiments/gem5-configs/configs-spec-tests/* gem5art-spec-experiment/gem5-configs/  
+cp -r gem5art-experiments/linux-configs/config.4.19.83 gem5art-spec-experiment/linux-configs/  
+cp -r gem5art-experiments/launch-scripts/launch_spec2006_experiments.py gem5art-spec-experiment/  
+cp -r gem5art-experiments/launch-scripts/launch_spec2017_experiments.py gem5art-spec-experiment/  
+cp -r gem5art-experiments/.gitignore gem5art-spec-experiment/  
 ``
 
 To clone gem5 repo,
 ``sh
-cd gem5art-spec-experiment
-git clone https://gem5.googlesource.com/public/gem5
-cd gem5
-git remote add darchr https://github.com/darchr/gem5
-git fetch darchr
-git cherry-pick 6450aaa7ca9e3040fb9eecf69c51a01884ac370c
-git cherry-pick 3403665994b55f664f4edfc9074650aaa7ddcd2c
-cd ..
+cd gem5art-spec-experiment  
+git clone https://gem5.googlesource.com/public/gem5  
+cd gem5  
+git remote add darchr https://github.com/darchr/gem5  
+git fetch darchr  
+git cherry-pick 6450aaa7ca9e3040fb9eecf69c51a01884ac370c  
+git cherry-pick 3403665994b55f664f4edfc9074650aaa7ddcd2c  
+cd ..  
 ``
 
 To build gem5,
 ``sh
-cd gem5art-spec-experiment/gem5/
-scons build/X86/gem5.opt -j96
+cd gem5art-spec-experiment/gem5/  
+scons build/X86/gem5.opt -j96  
 cd ..
 ``
 
 To build m5,
 ``sh
-cd gem5art-spec-experiment/gem5/util/m5/
-make -f Makefile.x86
-cd -
+cd gem5art-spec-experiment/gem5/util/m5/  
+make -f Makefile.x86  
+cd -  
 ``
 
 To clone linux repo,
 ``sh
-cd gem5art-spec-experiment
+cd gem5art-spec-experiment    
 git clone --branch v4.19.83 --depth 1 https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/
-mv linux linux-4.19.83
+mv linux linux-4.19.83  
 cd ..
 ``
 
 To build linux kernel,
 ``sh
-cd gem5art-spec-experiment
-cp linux-configs/config.4.19.83 linux-4.19.83/.config
-cd linux-4.19.83
-make -j96
-cp vmlinux vmlinux-4.19.83
+cd gem5art-spec-experiment  
+cp linux-configs/config.4.19.83 linux-4.19.83/.config  
+cd linux-4.19.83  
+make -j96  
+cp vmlinux vmlinux-4.19.83  
 cd ..
 ``
 
 To build disk images,
 ``sh
-cd disk-image/
-wget https://releases.hashicorp.com/packer/1.4.5/packer_1.4.5_linux_amd64.zip
-unzip packer_1.4.5_linux_amd64.zip
-rm packer_1.4.5_linux_amd64.zip
-./packer validate spec2006/spec2006.json
-./packer build spec2006/spec2006.json
-./packer validate spec2017/spec2017.json
-./packer build spec2017/spec2017.json
+cd disk-image/  
+wget https://releases.hashicorp.com/packer/1.4.5/packer_1.4.5_linux_amd64.zip  
+unzip packer_1.4.5_linux_amd64.zip  
+rm packer_1.4.5_linux_amd64.zip  
+./packer validate spec2006/spec2006.json  
+./packer build spec2006/spec2006.json  
+./packer validate spec2017/spec2017.json  
+./packer build spec2017/spec2017.json  
 ``
 
 
