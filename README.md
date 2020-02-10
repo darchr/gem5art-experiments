@@ -255,7 +255,7 @@ To download the microbench source code:
 ```sh
 git clone https://github.com/darchr/microbench.git
 ```
-Commit the source of microbenchmarks to the micro-tests repo (so that the current version of microbenchmarks becomes a part of the micro-tests reposiotry).
+Commit the source of microbenchmarks to the micro-tests repo (so that the current version of microbenchmarks becomes a part of your working reposiotry).
 
 ```sh
 git add microbench/
