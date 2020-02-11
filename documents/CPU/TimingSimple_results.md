@@ -1,6 +1,6 @@
 ## **Timing Simple CPU:**
 
-### Execution benchamarks:
+### Execution benchmarks:
 
 - EI  : 8 Independent Instructions
 - EF  : 16 Independent Instructions
@@ -10,7 +10,7 @@
 
 ### Memory Latency:
 
-- Inf : Perfect memory, it takes ‘0ns’ for any memory access.
+- Perfect : Perfect memory, it takes ‘0ns’ for any memory access.
 - SingleCycle : It takes '1ns' for any memory access.
 
 ### Simple_Timing CPU
@@ -24,14 +24,14 @@ The timing simple advances to "next fetch" in the same cycle as the "execute" st
 
 **The Timing Simple in Single cycle** 
 
-Since exceute and next-fetch happens at the same time, without memory latency, it takes only the inital latency for fetch and every execution happpens at zero time and the entire benchmark executes in 1 or 2 cycels, which gives a very high IPC.
+Since execute and next-fetch happens at the same time, without memory latency, it takes only the initial latency for fetch and every execution happens at zero time and the entire benchmark executes in 1 or 2 cycles, which gives a very high IPC.
 
-![IPC_INF_SIMPLE](images/IPC_INF_SIMPLE.png)
+![IPC_PERFECT_SIMPLE](images/IPC_execbenchmarks_Perfect_simple.png)
 
 
 **The Timing Simple in Single cycle**
 
-Since this is a execution benchmark suite with only airthmetic independent instruction, the latency we see is only because of fetch.
+Since this is an execution benchmark suite with only arithmetic independent instruction, the latency we see is only because of fetch.
 
 In single-Cycle memory bandwidth, the memory access to fetch takes 1 cycle and hence IPC ~1. 
 
