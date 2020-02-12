@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
-# Copyright (c) 2015 Jason Power
-# All rights reserved.
+#Copyright (c) 2020 The Regents of the University of California.
+#All Rights Reserved
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
@@ -25,16 +24,13 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-# Authors: Jason Power
 
-""" This file creates a set of Ruby caches, the Ruby network, and a simple
-point-to-point topology.
-See Part 3 in the Learning gem5 book: learning.gem5.org/book/part3
-You can change simple_ruby to import from this file instead of from msi_caches
-to use the MI_example protocol instead of MSI.
 
-IMPORTANT: If you modify this file, it's likely that the Learning gem5 book
-           also needs to be updated. For now, email Jason <jason@lowepower.com>
+""" This file creates a set of Ruby caches for the MESI TWO Level protocol
+This protocol models two level cache hierarchy. The L1 cache is split into 
+instruction and data cache. 
+
+This system support the memory size of up to 3GB.
 
 """
 
@@ -48,13 +44,13 @@ from m5.util import fatal, panic
 
 from m5.objects import *
 
-class MyCacheSystem(RubySystem):
+class MESITwoLevelCache(RubySystem):
 
     def __init__(self):
         if buildEnv['PROTOCOL'] != 'MESI_Two_Level':
             fatal("This system assumes MESI_Two_Level!")
 
-        super(MyCacheSystem, self).__init__()
+        super(MESITwoLevelCache, self).__init__()
 
     def setup(self, system, cpus, mem_ctrls, dma_ports, iobus):
         """Set up the Ruby cache subsystem. Note: This can't be done in the
@@ -65,18 +61,21 @@ class MyCacheSystem(RubySystem):
         # Ruby's global network.
         self.network = MyNetwork(self)
 
-        # MI example uses 5 virtual networks
+        # MESI_Two_Level example uses 5 virtual networks
         self.number_of_virtual_networks = 5
         self.network.number_of_virtual_networks = 5
+        # Number of L2 caches in the system. 
+        # There are 8 L2 caches in the AMD EPYC Rome processor
         num_l2caches = 8
         # There is a single global list of all of the controllers to make it
         # easier to connect everything to the global network. This can be
         # customized depending on the topology/network requirements.
-        # Create one controller for each L1 cache (and the cache mem obj.)
-        # Create a single directory controller (Really the memory cntrl)
+        # L1 caches are private to a core, hence there are one L1 cache per CPU core
+        # The number of L2 caches are dependent to the architecture
+        #
         self.controllers = \
-            [L1Cache(system, self, cpu) for cpu in cpus] + \
-            [L2Cache(system, self, num) for num in range(num_l2caches)] + \
+            [L1Cache(system, self, num_l2caches, cpu) for cpu in cpus] + \
+            [L2Cache(system, self, num_l2caches) for num in range(num_l2caches)] + \
             [DirController(self, system.mem_ranges, mem_ctrls)] + \
             [DMAController(self) for i in range(len(dma_ports))]
         
@@ -96,7 +95,7 @@ class MyCacheSystem(RubySystem):
                             for i,port in enumerate(dma_ports)
                           ]
 
-        for i,c in enumerate(self.controllers[0:len(cpus)]):
+        for i,c in enumerate(self.controllers[:len(cpus)]):
             c.sequencer = self.sequencers[i]
 
         #Connecting the DMA sequencer to DMA controller
@@ -130,7 +129,10 @@ class MyCacheSystem(RubySystem):
                 cpu.itb.walker.port = self.sequencers[i].slave
                 cpu.dtb.walker.port = self.sequencers[i].slave
 
-
+# Creating L1 cache controller. Consist of both instruction
+# and data cache. The size of data cache is 512KB and 
+# 8-way set associative. The instruction cache is 32KB,
+# 2-way set associative.
 class L1Cache(L1Cache_Controller):
 
     _version = 0
@@ -139,15 +141,14 @@ class L1Cache(L1Cache_Controller):
         cls._version += 1 # Use count for this particular type
         return cls._version - 1
 
-    def __init__(self, system, ruby_system, cpu):
+    def __init__(self, system, ruby_system, num_l2caches, cpu):
         """CPUs are needed to grab the clock domain and system is needed for
            the cache block size.
         """
         super(L1Cache, self).__init__()
         
         self.version = self.versionCount()
-        cacheline_size = 64
-        block_size_bits = int(math.log(cacheline_size, 2))
+        block_size_bits = int(math.log(system.cache_line_size, 2))
         l1i_size = '32kB'
         l1i_assoc = '2'
         l1d_size = '512kB'
@@ -161,11 +162,11 @@ class L1Cache(L1Cache_Controller):
                             assoc = l1d_assoc,
                             start_index_bit = block_size_bits,
                             is_icache = False)
-        self.l2_select_num_bits = int(math.log(8, 2))
+        self.l2_select_num_bits = int(math.log(num_l2caches , 2))
         self.clk_domain = cpu.clk_domain
         self.prefetcher = RubyPrefetcher.Prefetcher()
         self.send_evictions = self.sendEvicts(cpu)
-        self.transitions_per_cycle = '4'
+        self.transitions_per_cycle = 4
         self.enable_prefetch = False
         self.ruby_system = ruby_system
         self.connectQueues(ruby_system)
@@ -173,7 +174,7 @@ class L1Cache(L1Cache_Controller):
     def getBlockSizeBits(self, system):
         bits = int(math.log(system.cache_line_size, 2))
         if 2**bits != system.cache_line_size.value:
-            panic("Cache line size not a power of 2!")
+            panic("Cache line size not a power of 2111!")
         return bits
 
     def sendEvicts(self, cpu):
@@ -214,27 +215,23 @@ class L2Cache(L2Cache_Controller):
         cls._version += 1 # Use count for this particular type
         return cls._version - 1
 
-    def __init__(self, system, ruby_system, cpu):
-        """CPUs are needed to grab the clock domain and system is needed for
-           the cache block size.
-        """
+    def __init__(self, system, ruby_system, num_l2caches):
+        
         super(L2Cache, self).__init__()
 
         self.version = self.versionCount()
         # This is the cache memory object that stores the cache data and tags
-        self.L2cache = RubyCache(size = '8 MB',
-                                assoc = 16)
-                              # start_index_bit = self.getBlockSizeBits(system))
+        self.L2cache = RubyCache(size = '1 MB',
+                                assoc = 16,
+                                start_index_bit = self.getBlockSizeBits(system, num_l2caches))
         
         self.transitions_per_cycle = '4'
         self.ruby_system = ruby_system
         self.connectQueues(ruby_system)
 
-    def getBlockSizeBits(self, system):
-        l2_bits = int(math.log(8, 2)) # math.log(num_l2caches, 2)
+    def getBlockSizeBits(self, system, num_l2caches):
+        l2_bits = int(math.log(num_l2caches, 2))
         bits = int(math.log(system.cache_line_size, 2)) + l2_bits
-        if 2**bits != system.cache_line_size.value:
-            panic("Cache line size not a power of 2!")
         return bits
 
 

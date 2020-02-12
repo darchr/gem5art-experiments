@@ -31,12 +31,12 @@ import m5
 from m5.objects import *
 from m5.util import convert
 from fs_tools import *
-from MESI_Two_Level import MyCacheSystem
+from MESI_Two_Level import MESITwoLevelCache
 
-class MyRubySystem(LinuxX86System):
+class MySystem(LinuxX86System):
 
     def __init__(self, kernel, disk, cpu_type, num_cpus, opts):
-        super(MyRubySystem, self).__init__()
+        super(MySystem, self).__init__()
         self._opts = opts
 
         self._host_parallel = cpu_type == "kvm"
@@ -71,7 +71,7 @@ class MyRubySystem(LinuxX86System):
         self.createMemoryControllersDDR3()
 
         # Create the cache hierarchy for the system.
-        self.caches = MyCacheSystem()
+        self.caches = MESITwoLevelCache()
         self.caches.setup(self, self.cpu, self.mem_cntrls,
                           [self.pc.south_bridge.ide.dma, self.iobus.master],
                           self.iobus)
