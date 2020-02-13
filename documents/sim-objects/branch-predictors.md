@@ -65,7 +65,7 @@ int loop(int zero) {
 ### Impact of target buffer
 gem5 by default uses indirect predictor for branch target prediction of conditional branches, the below figure shows the impact of target buffer choice on control flow benchmarks. BTB seems to work better than indirect predictor because these benchmarks do not have enough indirect branches. 
 ![Target buffer](images/branchMissRate_heatmap_tbuff_comp.png)
-![Average IPC](images/branchMissRate_heatmap_tbuff_comp.png)
+![Average IPC](images/ipc_heatmap_comp.png)
 
 ### Impact of host CPU
 ![Average branch missrate](images/branchMissRate_heatmap_CPU_comp.png)
