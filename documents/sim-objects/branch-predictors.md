@@ -1,9 +1,13 @@
 # Branch Predictors
 
-Flow chart for Bpred_unit (to do)
-
-### Indirect Predictor
-(to do)
+## Branch Predictors in gem5
+1. 2-bit local
+2. Bi-Mode
+3. Tournament
+4. Loop predictor
+5. TAGE
+6. Statistical Corrector
+7. Multi Perspective Perceptron predictor
 
 ### Local Predictor
 The local predictor is a 1 level branch predictor that has a history table in which each entry is a n bit saturating counter. The history table is indexed by the PC, each counter in history table has 2^N states, if it predicts taken, branch target table in the indirector predictor is used obtain the branch address.  
@@ -22,6 +26,8 @@ TAGE (TAgged GEometric)is a global-history based branch predictor. It features a
 All TAGE tables are accessed in parallel, and the one using the longest history that matches provides the prediction (some exceptions apply).Entries are allocated in components using a longer history than the one that predicted when the prediction is incorrect.
 
 ## Benchmark Characterization
+Control flow benchmarks from Vertical Research Group's [micro-benchmark suite](https://github.com/darchr/microbench) were used to study the branch predictors 
+
 CCa - completely baised branches\
 CCm - heavly baised branches\
 CCe - easy to predict -- branch pattern (10101010...)\
@@ -31,24 +37,40 @@ CCl - impossible to predict with large penality -- large airthmetic work per bra
 CS1 - switch Case Statement of size 10 -- Different Case each time\
 CS3 - switch Case Statement of Size 10 -- Different case every third time\
 
-![Branch Miss Rate](images/branchMissRate.png)
 
-### Easy to predict
-1. Since local BP uses 2bit counters for direction prediction, it gives a bad performance for CCe compared to other BPs because, (101010..) would be a limiting sequence for a 2bit counter. In this case, the expected miss prediction rate is more than 50% but actually it is just 10%, the reason is still unclear.
 
-![Branch Miss Rate for baised benchmarks](images/baised_branchMissRate.png)
+### Branch Missprediction 
+![Branch Miss Rate](images/branchMissRate_timingSimple.png)
 
-2. Bi-mode BP is slightly bad at predicting baised benchmarks, this is beacuase the time taken to train taken and not-taken predictor in Bi-mode BP.
+- All BPs perform as expected in the case of easy to predict benchmarks such as `CCa`, `CCm` and `CCe`, with an exception only of local BP. This is because, local BP uses 2bit counters in its history table for direction prediction, pattern such as 10101010.. in terms branch behaviour is a limiting sequence for a two bit counter. But we see just 10% miss rate because, the for loops in the benchmark are easy predictable. Same reason also applies to immpossible to predict benchmarks such as `CCh`, `CCh_st` and `CCl`.
+```c
+int loop(int zero) {
+  int t = 0,i,iter;
+  for(iter=0; iter < ITERS; ++iter) {
+    for(i=0; i < STEP + zero; i+=1) {
+      if(randArr[i])  {
+        t+=3+3*t;
+      } else {
+        t-=1-5*t;
+      }
+    }
+  }
+  return t;
+}
+```
+- High miss prediction rate in case of control recursive benchmarks such as `CF1`, `CRd`, `CRf` and `CRm` is due the small RAS size(16) used during the experiment.
+- Among the four BPs studied LTAGE gives the best overall performance and Tournament gives the best performance in case control recursive benchmarks.
+![Branch Miss Rate](images/branchMissRate_heatmap_comp.png)
 
-![Indirect branch Miss Rate for easy to predict benchmarks](images/easy_indirectMissRate.png)
+### Impact of target buffer
+gem5 by default uses indirect predictor for branch target prediction of conditional branches, the below figure shows the impact of target buffer choice on control flow benchmarks. BTB seems to work better than indirect predictor because these benchmarks do not have enough indirect branches. 
+![Target buffer](images/branchMissRate_heatmap_tbuff_comp.png)
+![Average IPC](images/branchMissRate_heatmap_tbuff_comp.png)
 
-3. Need to find out why tournament and LTAGE are bad at indirect prediction (may be because of warmup).
+### Impact of host CPU
+![Average branch missrate](images/branchMissRate_heatmap_CPU_comp.png)
+![Average host time](images/host_seconds_heatmap_hostTime_comp.png)
 
-### Immpossible to predict
-The goal is to get worst missprediction rates, a random array of 16,384 elements (either 1 or 0) was used to train the predictors. But the predictors perform way better than expected. The reason might be indirection but not sure about this, all of the BPs used here use an indirector predictor for branch target prediction and TAGE uses it for branch direction prediction as well.
-Bi-mode and tournamnet predictors can at max use 64 bit  
+## Conclusion
+Indirect predictor didn't perform better than BTB because these benchmarks do not have enough indirect branches, LTAGE BP has best overall performance and Tournament performs better in case of control recursive benchmarks.
 
-### Multiway branches
-![Indirect branch Miss Rate](images/indirectMissRate.png)
-
-Switch case statements are multiway branches, they are difficult to predict because, the predictor must be have a history of all cases to make a acurrate prediction.
