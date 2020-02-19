@@ -209,7 +209,7 @@ cd ..
 To build gem5,
 ```sh
 cd gem5art-spec-experiment/gem5/
-scons build/X86/gem5.opt -j96
+scons build/X86/gem5.opt -j $(nproc)
 cd ..
 ```
 
@@ -233,7 +233,7 @@ To build linux kernel,
 cd gem5art-spec-experiment
 cp linux-configs/config.4.19.83 linux-4.19.83/.config
 cd linux-4.19.83
-make -j96
+make -j $(nproc)
 cp vmlinux vmlinux-4.19.83
 cd ..
 ```
