@@ -104,20 +104,20 @@ if __name__ == "__main__":
     sizes = ['simsmall']#, 'simlarge', 'native']
     cpus = ['kvm', 'timing']
 
-for cpu in cpus:
-    for num_cpu in num_cpus:
-        for sizes in sizes:
-            for bm in benchmarks:
-                run = gem5Run.createFSRun(
-                    'parsec_tests',    
-                    'gem5/build/X86/gem5.opt',
-                    'configs-parsec-tests/run_parsec.py',
-                    f'''results/run_parsec/{bm}/{size}/{cpu}/{num_cpu}''',
-                    gem5_binary, gem5_repo, experiments_repo,
-                    'linux-stable/vmlinux-4.19.83',
-                    'disk-image/parsec/parsec-image/parsec',
-                    linux_binary, disk_image,
-                    cpu, bm, size, num_cpu,
-                    timeout = 240*60*60 #240 hours
-                    )
-                run_gem5_instance.apply_async((run, os.getcwd(), ))
+    for cpu in cpus:
+        for num_cpu in num_cpus:
+            for size in sizes:
+                for bm in benchmarks:
+                    run = gem5Run.createFSRun(
+                        'parsec_tests',    
+                        'gem5/build/X86/gem5.opt',
+                        'configs-parsec-tests/run_parsec.py',
+                        f'''results/run_parsec/{bm}/{size}/{cpu}/{num_cpu}''',
+                        gem5_binary, gem5_repo, experiments_repo,
+                        'linux-stable/vmlinux-4.19.83',
+                        'disk-image/parsec/parsec-image/parsec',
+                        linux_binary, disk_image,
+                        cpu, bm, size, num_cpu,
+                        timeout = 24*60*60 #24 hours
+                        )
+                    run_gem5_instance.apply_async((run, os.getcwd(), ))
