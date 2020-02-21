@@ -93,7 +93,7 @@ linux_binary = Artifact.registerArtifact(
     cp vmlinux vmlinux-4.19.83;
     ''',
     inputs = [experiments_repo, linux_repo,],
-    documentation = "kernel binary for v4.19.83",
+    documentation = "kernel binary for v4.19.83"
 )
 
 

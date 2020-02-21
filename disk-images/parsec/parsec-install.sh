@@ -26,8 +26,9 @@ sudo apt install -y freeglut3-dev
 ## 
 
 # Building PARSEC
-unzip parsec-benchmark.zip 
+git clone https://github.com/darchr/parsec-benchmark.git
 cd parsec-benchmark
+echo "12345" | su gem5
 ./install.sh
 ./get-inputs
 ##

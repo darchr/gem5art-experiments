@@ -57,7 +57,7 @@ def writeBenchScript(dir, bench, size):
     bench_file = open(file_name,"w+")
     bench_file.write('cd /home/gem5/parsec-benchmark\n')
     bench_file.write('source env.sh\n')
-    bench_file.write('parsecmgmt -a run -p {} -i {}\n'.format(bench, size))
+    bench_file.write('parsecmgmt -a run -p {} -c gcc-hooks -i {}\n'.format(bench, size))
 
     # sleeping for sometime makes sure
     # that the benchmark's output has been
