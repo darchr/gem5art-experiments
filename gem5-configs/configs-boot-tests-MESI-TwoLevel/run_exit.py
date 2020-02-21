@@ -45,7 +45,7 @@ import SimpleOpts
 from system import *
 
 SimpleOpts.set_usage(
-    "usage: %prog [options] kernel disk cpu_type mem_sys num_cpus boot_type")
+    "usage: %prog [options] kernel disk cpu_type num_cpus boot_type")
 
 SimpleOpts.add_option("--allow_listeners", default=False, action="store_true",
                       help="Listeners disabled by default")
@@ -53,11 +53,11 @@ SimpleOpts.add_option("--allow_listeners", default=False, action="store_true",
 if __name__ == "__m5_main__":
     (opts, args) = SimpleOpts.parse_args()
 
-    if len(args) != 6:
+    if len(args) != 5:
         SimpleOpts.print_help()
         m5.fatal("Bad arguments")
 
-    kernel, disk, cpu_type, mem_sys, num_cpus, boot_type = args
+    kernel, disk, cpu_type, num_cpus, boot_type = args
     num_cpus = int(num_cpus)
 
     # create the system we are going to simulate
