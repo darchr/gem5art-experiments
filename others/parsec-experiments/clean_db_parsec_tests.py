@@ -15,10 +15,10 @@ so that the all (and only) valid runs have a name field
 # Updating boot tests run objects with classic memory system
 
 
-num_cpus = ['1']#, '8']
-benchmarks = ['blackscholes']#, 'bodytrack', 'canneal', 'dedup','facesim', 'ferret', 'fluidanimate', 'freqmine', 'raytrace', 'streamcluster', 'swaptions', 'vips', 'x264']
+num_cpus = ['1', '8']
+benchmarks = ['blackscholes', 'bodytrack', 'canneal', 'dedup','facesim', 'ferret', 'fluidanimate', 'freqmine', 'raytrace', 'streamcluster', 'swaptions', 'vips', 'x264']
 
-sizes = ['simsmall']#, 'simlarge', 'native']
+sizes = ['simsmall', 'simlarge', 'native']
 cpus = ['kvm', 'timing']
 
 
