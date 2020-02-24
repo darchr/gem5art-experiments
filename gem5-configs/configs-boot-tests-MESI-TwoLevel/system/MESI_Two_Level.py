@@ -137,7 +137,7 @@ class L1Cache(L1Cache_Controller):
         cls._version += 1 # Use count for this particular type
         return cls._version - 1
 
-    def __init__(self, system, ruby_system, cpu, numL2Caches):
+    def __init__(self, system, ruby_system, cpu, num_l2Caches):
         """Creating L1 cache controller. Consist of both instruction
            and data cache. The size of data cache is 512KB and
            8-way set associative. The instruction cache is 32KB,
@@ -160,7 +160,7 @@ class L1Cache(L1Cache_Controller):
                             assoc = l1d_assoc,
                             start_index_bit = block_size_bits,
                             is_icache = False)
-        self.l2_select_num_bits = int(math.log(numL2Caches , 2))
+        self.l2_select_num_bits = int(math.log(num_l2Caches , 2))
         self.clk_domain = cpu.clk_domain
         self.prefetcher = RubyPrefetcher.Prefetcher()
         self.send_evictions = self.sendEvicts(cpu)
@@ -213,7 +213,7 @@ class L2Cache(L2Cache_Controller):
         cls._version += 1 # Use count for this particular type
         return cls._version - 1
 
-    def __init__(self, system, ruby_system, numL2Caches):
+    def __init__(self, system, ruby_system, num_l2Caches):
         
         super(L2Cache, self).__init__()
 
@@ -221,7 +221,7 @@ class L2Cache(L2Cache_Controller):
         # This is the cache memory object that stores the cache data and tags
         self.L2cache = RubyCache(size = '1 MB',
                                 assoc = 16,
-                                start_index_bit = self.getBlockSizeBits(system, numL2Caches))
+                                start_index_bit = self.getBlockSizeBits(system, num_l2Caches))
         
         self.transitions_per_cycle = '4'
         self.ruby_system = ruby_system
