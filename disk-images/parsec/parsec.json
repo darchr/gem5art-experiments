@@ -57,11 +57,6 @@
         },
         {
             "type": "file",
-            "source": "../parsec-benchmark.zip",
-            "destination": "/home/gem5/parsec-benchmark.zip"
-        },
-        {
-            "type": "file",
             "source": "shared/serial-getty@.service",
             "destination": "/home/gem5/"
         },

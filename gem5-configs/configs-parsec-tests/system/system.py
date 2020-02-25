@@ -55,7 +55,7 @@ class MySystem(LinuxX86System):
         self.clk_domain.clock = '2.3GHz'
         self.clk_domain.voltage_domain = VoltageDomain()
 
-        mem_size = '32GB'
+        mem_size = '4GB'
         self.mem_ranges = [AddrRange('100MB'), # For kernel
                            AddrRange(0xC0000000, size=0x100000), # For I/0
                            AddrRange(Addr('4GB'), size = mem_size) # All data
@@ -388,4 +388,3 @@ class MySystem(LinuxX86System):
             range_type=1))
 
         self.e820_table.entries = entries
-

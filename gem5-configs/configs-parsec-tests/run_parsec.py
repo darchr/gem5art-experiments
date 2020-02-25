@@ -135,7 +135,7 @@ if __name__ == "__m5_main__":
         m5.stats.reset()
         # switching to atomic cpu if argument cpu == atomic
         if cpu == 'timing':
-            system.switchCpus(system.cpu, system.timingCpu)
+            system.switchCpus(system.timingCpu, system.cpu)
     else:
         print("Unexpected termination of simulation !")
         exit()
