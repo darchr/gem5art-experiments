@@ -98,7 +98,7 @@ linux_binary = Artifact.registerArtifact(
 
 
 if __name__ == "__main__":
-    num_cpus = ['1', '8']
+    num_cpus = ['1']
     benchmarks = ['blackscholes', 'bodytrack', 'canneal', 'dedup','facesim', 'ferret', 'fluidanimate', 'freqmine', 'raytrace', 'streamcluster', 'swaptions', 'vips', 'x264']
 
     sizes = ['simsmall', 'simlarge', 'native']
