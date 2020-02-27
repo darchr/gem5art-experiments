@@ -1,4 +1,5 @@
 cd /home/gem5/
+echo "12345" | su gem5
 echo "12345" | sudo apt update
 
 # Allowing services to restart while updating some 
@@ -26,8 +27,9 @@ sudo apt install -y freeglut3-dev
 ## 
 
 # Building PARSEC
-echo "12345" | su gem5
-git clone https://github.com/darchr/parsec-benchmark.git
+
+sudo chown gem5 -R parsec-benchmark/
+sudo chgrp gem5 -R parsec-benchmark/
 cd parsec-benchmark
 ./install.sh
 ./get-inputs

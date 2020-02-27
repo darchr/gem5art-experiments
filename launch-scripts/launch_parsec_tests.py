@@ -26,6 +26,17 @@ experiments_repo = Artifact.registerArtifact(
     documentation = 'main repo to run parsec tests with gem5'
 )
 
+parsec_repo = Artifact.registerArtifact(
+    command = '''mkdir parsec-benchmark/;
+    cd parsec-benchmark;
+    git clone https://github.com/darchr/parsec-benchmark.git;''',
+    typ = 'git repo',
+    name = 'parsec_repo',
+    path =  './disk-image/parsec-benchmark/parsec-benchmark/',
+    cwd = './disk-image/',
+    documentation = 'main repo to copy parsec source to the disk-image'
+)
+
 gem5_repo = Artifact.registerArtifact(
     command = '''
         git clone https://gem5.googlesource.com/public/gem5;
