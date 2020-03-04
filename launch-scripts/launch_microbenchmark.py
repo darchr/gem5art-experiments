@@ -11,7 +11,7 @@ from gem5art.run import gem5Run
 from gem5art.tasks.tasks import run_gem5_instance
 
 experiments_repo = Artifact.registerArtifact(
-        command = 'git clone https://github.com/darchr/gem5art-experiments.git',
+        command = 'git clone https://github.com/darchr/gem5art-experiments',
     typ = 'git repo',
     name = 'microbenchmark-tests',
     path =  './',
@@ -50,7 +50,7 @@ gem5_binary = Artifact.registerArtifact(
 
 if __name__ == "__main__":
     cpu_types = ['Simple','DefaultO3'] 
-    mem_types = ['SingleCycle'] 
+    mem_types = ['SingleCycle','Inf','Slow'] 
     bm_list =['CCa','CCe','CCh', 'CCh_st', 'CCl','CCm','CF1','CRd','CRf','CRm',
     'CS1','CS3','DP1d','DP1f','DPcvt','DPT','DPTd','ED1','EF','EI','EM1','EM5',
     'MD' 'MC','MCS','M_Dyn','MI','MIM','MIM2','MIP','ML2','ML2_BW_ld','ML2_BW_ldst'

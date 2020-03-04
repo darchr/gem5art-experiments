@@ -1,6 +1,15 @@
 ## **Timing Simple CPU:**
 
+The [TimingSimple](http://www.gem5.org/documentation/general_docs/cpu_models/SimpleCPU)  is the version of SimpleCPU that uses timing memory accesses. It has a Single stage pipeline, (Fetch + Execute).
+The timing simple advances to "next fetch" in the same cycle as the "execute" stage.
+
+![TimingSimpleCPU](images/TimingSimpleCPU.png)
+
 ### Execution benchmarks:
+
+The benchmarks used to test the TimingSimpleCPU are execution benchmark suite, which has mostly arithmetic instrcutions. In ideal case, the execution benchmark combined with a single cycle memory latency has to give IPC~1.
+
+The following are the description of the various benchmarks in the execution benchmark suite:
 
 - EI  : 8 Independent Instructions
 - EF  : 16 Independent Instructions
@@ -10,16 +19,14 @@
 
 ### Memory Latency:
 
+
 - Perfect : Perfect memory, it takes ‘0ns’ for any memory access.
+
+    To analyse the behaviour of SimpleTimingCPU the CPU, it is useful to run the CPU with a perfect memory to confirm that all the performance of this CPU is only dependent on the memory latency.
+
 - SingleCycle : It takes '1ns' for any memory access.
 
-### Simple_Timing CPU
-
-The TimingSimpleCPU is the version of SimpleCPU that uses timing memory accesses. It has a 2 stage pipeline, (Fetch + Execute).
-The timing simple advances to "next fetch" in the same cycle as the "execute" stage.
-
-
-![TimingSimpleCPU](images/TimingSimpleCPU.png)
+    It could be useful to run the CPU with single Cycle memory to see if we can obtain IPC~1 for arithmeitc heavy benchmarks and IPC~0.5 for a memory benchamarks.
 
 
 **The Timing Simple with perfect** 
@@ -40,13 +47,4 @@ In single-Cycle memory bandwidth, the memory access to fetch takes 1 cycle and h
 
 **Conclusion**
 
-[TimingSimple](http://www.gem5.org/documentation/general_docs/cpu_models/SimpleCPU) is an in-order 2 stage simple CPU, and could be useful to measure the memory latency involved in benchmarks.
-
-
-
-
-
-
-
-
-
+[TimingSimple](http://www.gem5.org/documentation/general_docs/cpu_models/SimpleCPU) is an in-order 1 stage simple CPU, and could be useful to measure the memory latency involved in benchmarks.
