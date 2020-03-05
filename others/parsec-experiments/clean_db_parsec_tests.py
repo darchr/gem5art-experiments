@@ -27,7 +27,8 @@ for cpu in cpus:
 	for num_cpu in num_cpus:
 		for size in sizes:
 			for bm in benchmarks:      
-				db.artifacts.remove({'outdir':'/home/mahyar/Workplace/DArchR/gem5art-experiments/launch_scripts/results/run_parsec/{}/{}/{}/{}'.format(bm, size, cpu, num_cpu)})
+				db.artifacts.remove({'outdir':'/home/mahyar/Workplace/DArchR/gem5art-experiments/launch-scripts/results/run_parsec/{}/{}/{}/{}'.format(bm, size, cpu, num_cpu)})
+				
 
                    
 
