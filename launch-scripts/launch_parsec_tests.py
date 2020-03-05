@@ -69,7 +69,7 @@ disk_image = Artifact.registerArtifact(
     name = 'parsec',
     cwd = 'disk-image',
     path = 'disk-image/parsec/parsec-image/parsec',
-    inputs = [packer, experiments_repo, m5_binary,],
+    inputs = [packer, experiments_repo, m5_binary, parsec_repo,],
     documentation = 'Ubuntu with m5 binary and PARSEC installed.'
 )
 
@@ -118,6 +118,8 @@ if __name__ == "__main__":
     for cpu in cpus:
         for num_cpu in num_cpus:
             for size in sizes:
+                if cpu == 'timing' and size != 'simsmall':
+                    continue
                 for bm in benchmarks:
                     run = gem5Run.createFSRun(
                         'parsec_tests',    
