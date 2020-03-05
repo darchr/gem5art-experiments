@@ -63,8 +63,8 @@ if __name__ == "__m5_main__":
     # create the system we are going to simulate
     if mem_sys == "classic":
         system = MySystem(kernel, disk, cpu_type, num_cpus, opts)
-    elif mem_sys == "ruby":
-        system = MyRubySystem(kernel, disk, cpu_type, num_cpus, opts)
+    elif mem_sys == "MI_example" or "MESI_Two_Level":
+        system = MyRubySystem(kernel, disk, cpu_type, mem_sys, num_cpus, opts)
     else:
         m5.fatal("Bad option for mem_sys, should be 'ruby' or 'classic'")
 
