@@ -102,6 +102,13 @@ if __name__ == "__m5_main__":
 
     print("Running the simulation")
     print("Using cpu: {}".format(cpu))
+    
+    start_tick = m5.curTick()
+    end_tick = m5.curTick()
+    start_insts = system.totalInsts()
+    end_insts = system.totalInsts()
+    m5.stats.reset()
+
     exit_event = m5.simulate()
 
     if exit_event.getCause() == "workbegin":
@@ -116,7 +123,19 @@ if __name__ == "__m5_main__":
         if cpu == 'timing':
             system.switchCpus(system.cpu, system.timingCpu)
     else:
-        print("Unexpected termination of simulation !")
+        print("Unexpected termination of simulation!")
+        print()
+        m5.stats.dump()
+        end_tick = m5.curTick()
+        end_insts = system.totalInsts()
+        m5.stats.reset()
+        print("Performance statistics:")
+
+        print("Simulated time: %.2fs" % ((end_tick-start_tick)/1e12))
+        print("Instructions executed: %d" % ((end_insts-start_insts)))
+        print("Ran a total of", m5.curTick()/1e12, "simulated seconds")
+        print("Total wallclock time: %.2fs, %.2f min" % \
+                    (time.time()-globalStart, (time.time()-globalStart)/60))
         exit()
 
     # Simulate the ROI
@@ -125,9 +144,9 @@ if __name__ == "__m5_main__":
     # Reached the end of ROI
     # Finish executing the benchmark with kvm cpu
     if exit_event.getCause() == "workend":
-        # Reached the start of ROI
-        # start of ROI is marked by an
-        # m5_work_begin() call
+        # Reached the end of ROI
+        # end of ROI is marked by an
+        # m5_work_end() call
         print("Dump stats at the end of the ROI!")
         m5.stats.dump()
         end_tick = m5.curTick()
@@ -137,7 +156,19 @@ if __name__ == "__m5_main__":
         if cpu == 'timing':
             system.switchCpus(system.timingCpu, system.cpu)
     else:
-        print("Unexpected termination of simulation !")
+        print("Unexpected termination of simulation!")
+        print()
+        m5.stats.dump()
+        end_tick = m5.curTick()
+        end_insts = system.totalInsts()
+        m5.stats.reset()
+        print("Performance statistics:")
+
+        print("Simulated time: %.2fs" % ((end_tick-start_tick)/1e12))
+        print("Instructions executed: %d" % ((end_insts-start_insts)))
+        print("Ran a total of", m5.curTick()/1e12, "simulated seconds")
+        print("Total wallclock time: %.2fs, %.2f min" % \
+                    (time.time()-globalStart, (time.time()-globalStart)/60))
         exit()
     
     # Simulate the remaning part of the benchmark

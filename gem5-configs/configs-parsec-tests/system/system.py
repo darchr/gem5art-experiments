@@ -133,13 +133,13 @@ class MySystem(LinuxX86System):
             self.mem_mode = 'atomic_noncaching'
 
             self.atomicCpu = [AtomicSimpleCPU(cpu_id = i,
-                                              switched_out = True)
-                              for i in range(num_cpus)]
+                                            switched_out = True)
+                                            for i in range(num_cpus)]
             map(lambda c: c.createThreads(), self.atomicCpu)
 
-        self.timingCpu = [DerivO3CPU(cpu_id = i,
-                                     switched_out = True)
-				   for i in range(num_cpus)]
+        self.timingCpu = [TimingSimpleCPU(cpu_id = i,
+                                        switched_out = True)
+				                        for i in range(num_cpus)]
 
         map(lambda c: c.createThreads(), self.timingCpu)
 
