@@ -34,11 +34,12 @@ from fs_tools import *
 from caches import *
 
 
-class MySystem(LinuxX86System):
+class MySystem(X86System):
 
     
     def __init__(self, kernel, disk, num_cpus, TimingCPUModel, no_kvm=False):
         super(MySystem, self).__init__()
+        self.workload = X86FsLinux()
         self._no_kvm = no_kvm
 
         self._host_parallel = True
@@ -73,12 +74,12 @@ class MySystem(LinuxX86System):
         self.setDiskImages(disk, disk)
         
         # Change this path to point to the kernel you want to use
-        self.kernel = kernel
+        self.workload.object_file = kernel
         # Options specified on the kernel command line
         boot_options = ['earlyprintk=ttyS0', 'console=ttyS0', 'lpj=7999923',
                          'root=/dev/hda1']
 
-        self.boot_osflags = ' '.join(boot_options)
+        self.workload.command_line = ' '.join(boot_options)
 
         # Create the CPUs for our system.
         self.createCPU(num_cpus, TimingCPUModel)
@@ -288,7 +289,7 @@ class MySystem(LinuxX86System):
         ###############################################
 
         # Add in a Bios information structure.
-        self.smbios_table.structures = [X86SMBiosBiosInformation()]
+        self.workload.smbios_table.structures = [X86SMBiosBiosInformation()]
 
         # Set up the Intel MP table
         base_entries = []
@@ -346,8 +347,8 @@ class MySystem(LinuxX86System):
         assignISAInt(1, 1)
         for i in range(3, 15):
             assignISAInt(i, i)
-        self.intel_mp_table.base_entries = base_entries
-        self.intel_mp_table.ext_entries = ext_entries
+        self.workload.intel_mp_table.base_entries = base_entries
+        self.workload.intel_mp_table.ext_entries = ext_entries
 
         entries = \
            [
@@ -375,6 +376,6 @@ class MySystem(LinuxX86System):
             size='%dB' % (self.mem_ranges[-1].size()),
             range_type=1))
 
-        self.e820_table.entries = entries
+        self.workload.e820_table.entries = entries
         
 
