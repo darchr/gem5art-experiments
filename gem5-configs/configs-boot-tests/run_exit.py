@@ -70,7 +70,7 @@ if __name__ == "__m5_main__":
 
     if boot_type == "init":
         # Simply run "exit.sh"
-        system.boot_osflags += ' init=/root/exit.sh'
+        system.workload.command_line += ' init=/root/exit.sh'
     else:
         if boot_type != "systemd":
             SimpleOpts.print_help()
