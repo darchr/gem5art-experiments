@@ -64,5 +64,3 @@ for linux in linuxes:
                             i['name'] = 'boot_tests_timeout_invalid'
                             db.artifacts.replace_one(i_old, i, True)
 
-
-
