@@ -28,10 +28,10 @@ working configuration (cpu model, linux version etc.)
 
 
 def working_status(linux, cpu, mem, num_cpum, boot_type):
-    with open('/fasthome/aakahlow/boot_tests/results/run_exit/vmlinux-{}/boot-exit/{}/{}/{}/{}/info.json'.format(linux, cpu, mem, num_cpu, boot_type)) as f:
-        data = json.load(f)
-        if(data['status'] == 'Finished'):
-            return True
+    for i in db.artifacts.find({'outdir':'/fasthome/aakahlow/boot_tests/results/run_exit/vmlinux-{}/boot-exit/{}/{}/{}/{}'.format(linux, cpu, mem, num_cpu, boot_type)}):
+        if 'name' in i.keys() and i['name'] == 'boot_tests_gem5_19_run_4':
+            if(i['status'] == 'Finished'):
+                return True
 
 
 if __name__ == "__main__":
@@ -52,3 +52,5 @@ if __name__ == "__main__":
                     for mem in mem_types:
                         if working_status(linux, cpu, mem, num_cpu, boot_type):
                             working_list.append('{}_{}_{}_{}_{}'.format(cpu,linux,boot_type,mem,num_cpu))
+
+
