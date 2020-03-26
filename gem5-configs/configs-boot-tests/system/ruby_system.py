@@ -31,11 +31,11 @@ import m5
 from m5.objects import *
 from m5.util import convert
 from fs_tools import *
-from MI_example_caches import MyCacheSystem
+
 
 class MyRubySystem(LinuxX86System):
 
-    def __init__(self, kernel, disk, cpu_type, num_cpus, opts):
+    def __init__(self, kernel, disk, cpu_type, mem_sys, num_cpus, opts):
         super(MyRubySystem, self).__init__()
         self._opts = opts
 
@@ -71,7 +71,12 @@ class MyRubySystem(LinuxX86System):
         self.createMemoryControllersDDR3()
 
         # Create the cache hierarchy for the system.
-        self.caches = MyCacheSystem()
+        if mem_sys == 'MI_example':
+            from MI_example_caches import MIExampleSystem
+            self.caches = MIExampleSystem()
+        elif mem_sys == 'MESI_Two_Level':
+            from MESI_Two_Level import MESITwoLevelCache
+            self.caches = MESITwoLevelCache()
         self.caches.setup(self, self.cpu, self.mem_cntrls,
                           [self.pc.south_bridge.ide.dma, self.iobus.master],
                           self.iobus)
@@ -125,8 +130,7 @@ class MyRubySystem(LinuxX86System):
 
     def _createMemoryControllers(self, num, cls):
         self.mem_cntrls = [
-            cls(range = self.mem_ranges[0],
-                channels = num)
+            cls(range = self.mem_ranges[0])
             for i in range(num)
         ]
 
