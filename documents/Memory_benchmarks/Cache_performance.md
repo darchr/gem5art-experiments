@@ -1,6 +1,6 @@
 # **Cache Performance**
 
-In this performance analysis experiment, various basic cache misses are tested using some useful [micro-benchmarks](https://github.com/VerticalResearchGroup/microbench) origianlly developed at University of Wisconsin-Madison. to ensure that the caches in gem5 work correctly.
+In this performance analysis experiment, various basic cache misses are tested using some useful [micro-benchmarks](https://github.com/VerticalResearchGroup/microbench) origianlly developed at University of Wisconsin-Madison to ensure that the caches in gem5 work correctly.
 
 ### **CPU Models**
 
@@ -32,9 +32,9 @@ Conflict  misses occur in benchmarks where several blocks are mapped to the same
 
 **Result:**
 
-![Conflict_misses_DefaultO3](images/L1D__misses_conflict_DefaultO3.png) 
-
 The code has more than 8  blocks ( it has 9) mapping into the same set, therefore when the associativity is set to 8 the missrate is high due to confict misses, incereasing the associativity (to 16) as expected  reduced the overall miss rate as well as overall mshr miss rate.
+
+<img src="images/L1D__misses_conflict_DefaultO3.png" width="500" height="500">
 
 
 ### **Capacity Misses**
@@ -66,7 +66,7 @@ The MIM2 has 2 coalescing ops in between which make use of the spacial loclaity 
 
 As we increase the size of the cache from 4KB to 32Kb the missrate of MD and MI reduces.
 
-![Compulsory_misses_DefaultO3](images/L1D_misses_Capacity_DefaultO3.png) 
+<img src="images/L1D_misses_Capacity_DefaultO3.png" width="500" height="500">
 
 
 ### **Compulsory Misses**
@@ -89,7 +89,7 @@ When the cache size much bigger than necessary, the number of compulsory misses 
 
 As we increase the size of the cache from 32KB to 64Kb the missrate of  MI increases due to compulsory misses.
 
-![Capacity_misses_DefaultO3](images/L1D_misses_compulsory_DefaultO3.png) 
+<img src="images/L1D_misses_compulsory_DefaultO3.png" width="500" height="500">
 
 
 ## **Instruction Cache Performance**
@@ -110,7 +110,8 @@ As we increase the size of the cache from 32KB to 64Kb the missrate of  MI incre
 
 As we increase the size of the Instruction cache, the missrate eventually reduces as expected.
 
-![Conflict_misses_DefaultO3](images/LI_misses_DefaultO3.png) 
+<img src="images/LI_misses_DefaultO3.png" width="500" height="500">
+
 
 ## **L2 Cache Performance**
 
@@ -133,8 +134,9 @@ The L2 Cache is tested using benchmark that does linkedlist traversal in of elem
 **Results:**
 As we increase the size of the L2 cache, the missrate eventually reduces as expected, but it does not decrease steeply.
 
-![L2_misses_DefaultO3](images/L2_misses_DefaultO3.png) 
+<img src="images/L2_misses_DefaultO3.png" width="500" height="500">
+ 
 
 ## **Conclusion:**
 
-The functionality of L1 cahce, Instruction cache and L2 cache was analysed with these benchmarks and these benchmarks behaved as expected in the gem5 model with DefaultO3 CPU and Classic memory model.
+The functionality of L1 cache, Instruction cache and L2 cache was analysed with these benchmarks and these benchmarks behaved as expected in the gem5 model with DefaultO3 CPU and Classic memory model.
