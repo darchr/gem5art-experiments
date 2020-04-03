@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# Copyright (c) 2020 The Regents of the University of California.
+# SPDX-License-Identifier: BSD 3-Clause
+
 echo 'Post Installation Started'
 
 mv /home/gem5/serial-getty@.service /lib/systemd/system/
