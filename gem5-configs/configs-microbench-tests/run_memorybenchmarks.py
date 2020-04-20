@@ -37,6 +37,7 @@ from m5.objects import Root
 from m5.objects import *
 
 from system import BaseTestSystem
+from system import InfMemory, SingleCycleMemory, SlowMemory
 BranchPredictor = LTAGE
 
 class IntALU(FUDesc):
