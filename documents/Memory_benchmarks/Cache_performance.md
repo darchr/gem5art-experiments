@@ -1,18 +1,18 @@
-# **Cache Performance**
+# Cache Performance
 
 In this performance analysis experiment, various basic cache misses are tested using some useful [micro-benchmarks](https://github.com/VerticalResearchGroup/microbench) origianlly developed at University of Wisconsin-Madison to ensure that the caches in gem5 work correctly.
 
-### **CPU Models**
+### CPU Models
 
 **Default O3** : Out of Order CPU model with instruction commit width of 8 and LTAGE branch predictor.
 
-### **Cache Model**
+### Cache Model
 
 **Classic Caches:** Non-blocking cache with MSHR (miss status holding register) and WB (Write Buffer) for read and write misses. With no prefetcher. Replacement policy is LRU with set associativity of 8.
 
-## **L1D Cache Performance**
+## L1D Cache Performance
 
-### **Conflict Misses**
+### Conflict Misses
 
 Conflict  misses occur in benchmarks where several blocks are mapped to the same set or block frame and all of them cannot fit in the set.
 
@@ -37,7 +37,7 @@ The code has more than 8  blocks ( it has 9) mapping into the same set, therefor
 <img src="images/L1D__misses_conflict_DefaultO3.png" width="500" height="500">
 
 
-### **Capacity Misses**
+### Capacity Misses
 
 Generally when a benchmark has bad spatial locality, (refers to the use of data elements within relatively close storage locations) it fills up the cache with unnecessary data leading to cache pollution which leads to more capacity misses in L1 data cache.
 
@@ -69,7 +69,7 @@ As we increase the size of the cache from 4KB to 32Kb the missrate of MD and MI 
 <img src="images/L1D_misses_Capacity_DefaultO3.png" width="500" height="500">
 
 
-### **Compulsory Misses**
+### Compulsory Misses
 
 When the cache size much bigger than necessary, the number of compulsory misses increases and becomes one of the main cause for increase in the miss rate.
 
@@ -92,7 +92,7 @@ As we increase the size of the cache from 32KB to 64Kb the missrate of  MI incre
 <img src="images/L1D_misses_compulsory_DefaultO3.png" width="500" height="500">
 
 
-## **Instruction Cache Performance**
+## Instruction Cache Performance
 
 **configuration of the cache:**
 
@@ -113,7 +113,7 @@ As we increase the size of the Instruction cache, the missrate eventually reduce
 <img src="images/LI_misses_DefaultO3.png" width="500" height="500">
 
 
-## **L2 Cache Performance**
+## L2 Cache Performance
 
 The L2 Cache is tested using benchmark that does linkedlist traversal in of elements residing in L2 cache  
 
@@ -137,6 +137,6 @@ As we increase the size of the L2 cache, the missrate eventually reduces as expe
 <img src="images/L2_misses_DefaultO3.png" width="500" height="500">
  
 
-## **Conclusion:**
+## Conclusion:
 
 The functionality of L1 cache, Instruction cache and L2 cache was analysed with these benchmarks and these benchmarks behaved as expected in the gem5 model with DefaultO3 CPU and Classic memory model.
