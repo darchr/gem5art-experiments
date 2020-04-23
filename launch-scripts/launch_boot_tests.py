@@ -136,7 +136,7 @@ if __name__ == "__main__":
                                 os.path.join('linux-stable', 'vmlinux'+'-'+linux),
                                 'disk-image/boot-exit/boot-exit-image/boot-exit',
                                 linux_binaries[linux], disk_image,
-                                cpu, mem, num_cpu, mem_types,boot_type,
+                                cpu, mem, num_cpu, boot_type,
                                 timeout = 6*60*60 #6 hours
                                 )
                             run_gem5_instance.apply_async((run,))
@@ -151,7 +151,7 @@ if __name__ == "__main__":
                                 os.path.join('linux-stable', 'vmlinux'+'-'+linux),
                                 'disk-image/boot-exit/boot-exit-image/boot-exit',
                                 linux_binaries[linux], disk_image,
-                                cpu, mem, num_cpu, mem_types, boot_type,
+                                cpu, mem, num_cpu, boot_type,
                                 timeout = 6*60*60 #6 hours
                                 )
                             run_gem5_instance.apply_async((run,))
