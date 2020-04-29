@@ -48,13 +48,13 @@ from m5.util import fatal, panic
 
 from m5.objects import *
 
-class MyCacheSystem(RubySystem):
+class MIExampleSystem(RubySystem):
 
     def __init__(self):
         if buildEnv['PROTOCOL'] != 'MI_example':
             fatal("This system assumes MI_example!")
 
-        super(MyCacheSystem, self).__init__()
+        super(MIExampleSystem, self).__init__()
 
     def setup(self, system, cpus, mem_ctrls, dma_ports, iobus):
         """Set up the Ruby cache subsystem. Note: This can't be done in the

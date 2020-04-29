@@ -366,6 +366,184 @@ Use  the below Option to select the configuration you want to run:
     | --cache_type | L1_cache, L2_cache                | L1_cache |
 
 
+## Steps to Run microbenchmark-experiments
+
+The particular microbenchmarks we are using in this tutorial were originally developed at the University of Wisconsin-Madison. This microbenchmark suite is divided into different control, execution and memory benchmarks. We will use system emulation (SE) mode of gem5 to run these microbenchmarks with gem5.
+
+To download the microbench source code:
+
+```sh
+git clone https://github.com/darchr/microbench.git
+```
+Commit the source of microbenchmarks to the micro-tests repo (so that the current version of microbenchmarks becomes a part of your working reposiotry).
+
+```sh
+git add microbench/
+git commit -m "Add microbenchmarks"
+```
+
+compile the benchmarks:
+
+```sh
+cd microbench
+make
+```
+
+To create python3 virtual environment:
+
+```sh
+virtualenv -p python3 venv
+source venv/bin/activate
+```
+
+Run the database (if not already running) using (run this command after creating a directory):
+
+```sh
+docker run -p 27017:27017 -v <absolute path to the created directory>:/data/db --name mongo-<some tag> -d mongo
+```
+
+Run a celery server using (unless this experiment is run by someone in DArchR):
+
+```sh
+celery -E -A gem5art.tasks.celery worker --autoscale=[number of workers],0
+```
+
+(For users inside DArchR follow these [steps](#using-shared-celery-server) to run your experiments using centralized celery server.)
+
+
+ There are two launch scripts to micro-benchmarks.
+
+- [launch-scripts/launch_microbenchmarks.py](launch_microbenchmark.py)
+: Launch script to run basic microbenchmark experiment for all cpu.
+
+- [launch-scripts/launch_microbench_allconfig.py](launch_microbench_allconfig.py)
+: Launch script to run microbenchmarks with different configuration.
+
+#### launch_microbench_allconfig.py
+
+There are many different experiments which can be run using this launch script with the help of various command_line parameters.
+
+Use  the below Option to select the configuration you want to run:
+
+ --config [config_base, config_control, config_memory]
+
+- Config_base:
+   
+   To run basic microbenchmark experiment for all cpu.
+
+    | Options   | Choices                          | Default |
+    |-----------|----------------------------------|---------|
+    | --bm_list | control, memory, main_memory,all | all     |
+    |           |                                  |         |
+
+- config_control:
+     
+    To run microbenchmark experiments using different branch preidctors for selected CPU.
+
+    | Options   | Choices                           | Default |
+    |-----------|-----------------------------------|---------|
+    | --bm_list | control, memory, main_memory, all | all     |
+    | --cpu     | simple, O3                        | simple  |
+
+- config_memory:
+
+    To run microbenchmark experiments for all cpu with different L1 or L2 cache size.
+
+    | options      | choices                           | default  |
+    |--------------|-----------------------------------|----------|
+    | --bm_list    | control, memory, main_memory, all | all      |
+    | --cache_type | L1_cache, L2_cache                | L1_cache |
+
+
+## Steps to Run microbenchmark-experiments
+
+The particular microbenchmarks we are using in this tutorial were originally developed at the University of Wisconsin-Madison. This microbenchmark suite is divided into different control, execution and memory benchmarks. We will use system emulation (SE) mode of gem5 to run these microbenchmarks with gem5.
+
+To download the microbench source code:
+
+```sh
+git clone https://github.com/darchr/microbench.git
+```
+Commit the source of microbenchmarks to the micro-tests repo (so that the current version of microbenchmarks becomes a part of your working reposiotry).
+
+```sh
+git add microbench/
+git commit -m "Add microbenchmarks"
+```
+
+compile the benchmarks:
+
+```sh
+cd microbench
+make
+```
+
+To create python3 virtual environment:
+
+```sh
+virtualenv -p python3 venv
+source venv/bin/activate
+```
+
+Run the database (if not already running) using (run this command after creating a directory):
+
+```sh
+docker run -p 27017:27017 -v <absolute path to the created directory>:/data/db --name mongo-<some tag> -d mongo
+```
+
+Run a celery server using (unless this experiment is run by someone in DArchR):
+
+```sh
+celery -E -A gem5art.tasks.celery worker --autoscale=[number of workers],0
+```
+
+(For users inside DArchR follow these [steps](#using-shared-celery-server) to run your experiments using centralized celery server.)
+
+
+ There are two launch scripts to micro-benchmarks.
+
+- [launch-scripts/launch_microbenchmarks.py](launch_microbenchmark.py)
+: Launch script to run basic microbenchmark experiment for all cpu.
+
+- [launch-scripts/launch_microbench_allconfig.py](launch_microbench_allconfig.py)
+: Launch script to run microbenchmarks with different configuration.
+
+#### launch_microbench_allconfig.py
+
+There are many different experiments which can be run using this launch script with the help of various command_line parameters.
+
+Use  the below Option to select the configuration you want to run:
+
+ --config [config_base, config_control, config_memory]
+
+- Config_base:
+   
+   To run basic microbenchmark experiment for all cpu.
+
+    | Options   | Choices                          | Default |
+    |-----------|----------------------------------|---------|
+    | --bm_list | control, memory, main_memory,all | all     |
+    |           |                                  |         |
+
+- config_control:
+     
+    To run microbenchmark experiments using different branch preidctors for selected CPU.
+
+    | Options   | Choices                           | Default |
+    |-----------|-----------------------------------|---------|
+    | --bm_list | control, memory, main_memory, all | all     |
+    | --cpu     | simple, O3                        | simple  |
+
+- config_memory:
+
+    To run microbenchmark experiments for all cpu with different L1 or L2 cache size.
+
+    | options      | choices                           | default  |
+    |--------------|-----------------------------------|----------|
+    | --bm_list    | control, memory, main_memory, all | all      |
+    | --cache_type | L1_cache, L2_cache                | L1_cache |
+
+
 
 
 

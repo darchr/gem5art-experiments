@@ -11,7 +11,7 @@ from gem5art.run import gem5Run
 from gem5art.tasks.tasks import run_gem5_instance
 
 experiments_repo = Artifact.registerArtifact(
-        command = 'git clone https://github.com/darchr/gem5art-experiments.git',
+        command = 'git clone https://github.com/darchr/gem5art-experiments',
     typ = 'git repo',
     name = 'microbenchmark-tests',
     path =  './',
@@ -20,12 +20,12 @@ experiments_repo = Artifact.registerArtifact(
 )
 
 gem5_repo = Artifact.registerArtifact(
-    command = 'git clone https://github.com/darchr/gem5',
+    command = 'git clone https://gem5.googlesource.com/public/gem5',
     typ = 'git repo',
     name = 'gem5',
     path =  'gem5/',
     cwd = './',
-    documentation = 'git repo with gem5 master branch on Sep 23rd'
+    documentation = 'git repo with gem5-19 master branch '
 )
 
 m5_binary = Artifact.registerArtifact(
@@ -50,7 +50,7 @@ gem5_binary = Artifact.registerArtifact(
 
 if __name__ == "__main__":
     cpu_types = ['Simple','DefaultO3'] 
-    mem_types = ['SingleCycle','Inf','SingleCycle'] 
+    mem_types = ['SingleCycle','Inf','Slow'] 
     bm_list =['CCa','CCe','CCh', 'CCh_st', 'CCl','CCm','CF1','CRd','CRf','CRm',
     'CS1','CS3','DP1d','DP1f','DPcvt','DPT','DPTd','ED1','EF','EI','EM1','EM5',
     'MD' 'MC','MCS','M_Dyn','MI','MIM','MIM2','MIP','ML2','ML2_BW_ld','ML2_BW_ldst'
@@ -73,7 +73,7 @@ if __name__ == "__main__":
     for mem in mem_types:
         for bm in bm_list:
             for cpu in cpu_types:
-                    run = gem5Run.createSERun('X86_microbenchmarks_{}_{}_{}'.format(mem,bm,cpu),
+                    run = gem5Run.createSERun('X86_microbenchmarks_gem5-19'.format(mem,bm,cpu),
                         'gem5/build/X86/gem5.opt',
                         'configs-microbench-tests/run_micro.py',
                         'results/X86/run_micro/{}/{}/{}'.format(mem,bm,cpu),
