@@ -6,11 +6,8 @@
 cd /home/gem5/gapbs
 
 # Read workload file
-m5 readfile > workloadfile.sh
+m5 readfile > workloadfile
 echo "Done reading workloads"
-
-# The workload file should always exists
-echo "Workload detected"
 
 
 # Read the name of the workload, the size of the workload

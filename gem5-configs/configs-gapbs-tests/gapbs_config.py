@@ -37,17 +37,17 @@ import m5
 import m5.ticks
 from m5.objects import *
 
-sys.path.append('configs/common/') # For the next line...
+sys.path.append('gem5/configs/common/') # For the next line...
 import SimpleOpts
 
-from system import MySystem
+from system import *
 
-SimpleOpts.add_option("--benchmark", default='',
-                      help="Workload's name")
-SimpleOpts.add_option("--synthetic", default='',
-                      help="1 if synthetic graph, 0 if real graph")
-SimpleOpts.add_option("--graph", default='',
-                      help="graph size or graph name")
+SimpleOpts.set_usage(
+    "usage: %prog [options] kernel disk cpu_type num_cpus mem_sys benchmark synthetic graph")
+
+SimpleOpts.add_option("--allow_listeners", default=False, action="store_true",
+                      help="Listeners disabled by default")
+
 
 def writeBenchScript(dir, benchmark_name, size, synthetic):
     """
@@ -58,25 +58,33 @@ def writeBenchScript(dir, benchmark_name, size, synthetic):
     input_file_name = '{}/run_{}_{}'.format(dir, benchmark_name, size)
     if (synthetic):
         with open(input_file_name,"w") as f:
-           f.write('#!/bin/sh\n')
            f.write('./{} -g {}\n'.format(benchmark_name, size))
     elif(synthetic==0):
         with open(input_file_name,"w") as f:
            f.write('#!/bin/sh\n')
            f.write('./{} -sf {}'.format(benchmark_name, size))
-    else:
-        with open(input_file_name,"w") as f:
-           f.write('#!/bin/sh\n')
+    
     return input_file_name
 
 if __name__ == "__m5_main__":
     (opts, args) = SimpleOpts.parse_args()
 
     # create the system we are going to simulate
-    system = MySystem(opts)
-    benchmark_name = opts.benchmark
-    synthetic = opts.synthetic
-    benchmark_size = opts.graph
+    if len(args) != 8:
+        SimpleOpts.print_help()
+        m5.fatal("Bad arguments")
+    
+    kernel, disk, cpu_type, num_cpus, mem_sys, benchmark, synthetic, benchmark_size = args
+    num_cpus = int(num_cpus)
+
+    if (mem_sys == "classic"):
+        system = MySystem(kernel, disk, cpu_type, num_cpus,opts)
+    elif (mem_sys == "MI_example"):
+        system = MyRubySystem(kernel, disk, cpu_type, mem_sys, num_cpus,opts)
+
+    
+    system = MySystem(kernel, disk, cpu_type, num_cpus,opts)
+    benchmark_name = benchmark
 
     output_dir = os.path.join(m5.options.outdir, "speclogs")
 
@@ -89,6 +97,7 @@ if __name__ == "__m5_main__":
     # Read in the script file passed in via an option.
     # This file gets read and executed by the simulated system after boot.
     # Note: The disk image needs to be configured to do this.
+
     system.readfile = writeBenchScript(m5.options.outdir, benchmark_name,
                                        benchmark_size, synthetic) 
 

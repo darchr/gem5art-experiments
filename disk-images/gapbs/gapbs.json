@@ -57,7 +57,7 @@
         },
         {
             "type": "file",
-            "source": "../gapbs",
+            "source": "gapbs/GAPBS",
             "destination": "/home/gem5/"
         },
         {

@@ -101,26 +101,27 @@ if __name__ == "__main__":
     boot_types = ['init']
     num_cpus = ['1']
     cpu_types = ['kvm']
-    workloads = ['bc', 'bfs', 'pr', 'cc', 'sssp', 'tc']
+    workloads = ['bc', 'bfs', 'cc', 'sssp', 'tc','pr']
     synthetic = ['1']
-    sizes = ['10','15','20']
+    sizes = ['10']
+    mem_types = ['classic', 'MI_example']
 
-    for boot_type in boot_types:
-        for cpu in cpu_types:
-            for num_cpu in num_cpus:
-                for workload in workloads:
-                    for syn in synthetic:
-                        for size in sizes: 
+    for cpu in cpu_types:
+        for num_cpu in num_cpus:
+            for workload in workloads:
+                for syn in synthetic:
+                    for size in sizes: 
+                        for mem in mem_types:
                             run = gem5Run.createFSRun(
                                 'Running GAPBS',
                                 'gem5/build/X86/gem5.opt',
-                                'configs-fullsystem/gapbs_config.py',
+                                'configs-gapbs-tests/gapbs_config.py',
                                 'results/run_exit/vmlinux-5.2.3/gapbs/{}/{}/{}/{}/{}/{}'.
-                                format(cpu, num_cpu, boot_type, workload, syn, size),
+                                format(cpu, num_cpu, mem ,workload, syn, size),
                                 gem5_binary, gem5_repo, experiments_repo,
                                 'linux-stable/vmlinux-5.2.3',
-                                'disk-image/gapbs/gapbs-img/gapbs',
-                                linux_binaries, disk_image,cpu, num_cpu, boot_type, workload, syn, size,
+                                'disk-image/gapbs-image/gapbs',
+                                linux_binaries, disk_image, cpu, num_cpu, mem ,workload, syn, size,
                                 timeout = 6*60*60 
                                 )
-                run_gem5_instance.apply_async((run,))
+                            run_gem5_instance(run,)
