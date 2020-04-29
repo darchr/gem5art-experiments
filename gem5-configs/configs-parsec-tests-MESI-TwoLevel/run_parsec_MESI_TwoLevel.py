@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2016 Jason Lowe-Power
+# Copyright (c) 2019 The Regents of the University of California.
 # All rights reserved.
-#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
 # met: redistributions of source code must retain the above copyright
@@ -25,21 +24,25 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-# Authors: Jason Lowe-Power
+# Authors: Jason Lowe-Power, Ayaz Akram
 
-"""
+""" Script to run NAS parallel benchmarks with gem5.
+    The script expects kernel, diskimage, cpu (kvm or atomic),
+    benchmark to run and number of cpus as arguments.
+
+    If your application has ROI annotations, this script will count the total
+    number of instructions executed in the ROI. It also tracks how much
+    wallclock and simulated time.
 """
 
-import errno
 import os
 import sys
 import time
-
 import m5
 import m5.ticks
 from m5.objects import *
 
-sys.path.append('../gem5/configs/common/') # For the next line...
+sys.path.append('gem5/configs/common/') # For the next line...
 import SimpleOpts
 
 from system import *
@@ -64,33 +67,21 @@ def writeBenchScript(dir, bench, size):
     bench_file.close()
     return file_name
 
-SimpleOpts.set_usage(
-    "usage: %prog [options] kernel disk cpu_type num_cpus boot_type")
-
-SimpleOpts.add_option("--allow_listeners", default=False, action="store_true",
-                      help="Listeners disabled by default")
-
 if __name__ == "__m5_main__":
     (opts, args) = SimpleOpts.parse_args()
+    kernel, disk, cpu, benchmark, size, num_cpus, boot_type = args
 
-    if len(args) != 5:
-        SimpleOpts.print_help()
-        m5.fatal("Bad arguments")
-
-    kernel, disk, cpu_type, benchmark, size, num_cpus, boot_type = args
-    num_cpus = int(num_cpus)
+    if not cpu in ['timing', 'kvm']:
+        m5.fatal("cpu not supported")
 
     # create the system we are going to simulate
-    system = MySystem(kernel, disk, cpu_type, num_cpus, opts)
+    system = MyRubySystem(kernel, disk, cpu, int(num_cpus), opts)
 
-    if boot_type == "init":
-        # Simply run "exit.sh"
-        system.boot_osflags += ' init=/root/exit.sh'
-    else:
-        if boot_type != "systemd":
-            SimpleOpts.print_help()
-            m5.fatal("Bad option for boot_type. init or systemd.")
+    # Exit from guest on workbegin/workend
+    system.exit_on_work_items = True
 
+    # Create and pass a script to the simulated system to run the reuired
+    # benchmark
     system.readfile = writeBenchScript(m5.options.outdir, benchmark, size)
 
     # set up the root SimObject and start the simulation
@@ -102,7 +93,7 @@ if __name__ == "__m5_main__":
         # Note: The simulator is quite picky about this number!
         root.sim_quantum = int(1e9) # 1 ms
 
-    # Required for long-running jobs
+    #needed for long running jobs
     m5.disableAllListeners()
 
     # instantiate all of the objects we've created above
@@ -112,6 +103,13 @@ if __name__ == "__m5_main__":
 
     print("Running the simulation")
     print("Using cpu: {}".format(cpu))
+    
+    start_tick = m5.curTick()
+    end_tick = m5.curTick()
+    start_insts = system.totalInsts()
+    end_insts = system.totalInsts()
+    m5.stats.reset()
+
     exit_event = m5.simulate()
 
     if exit_event.getCause() == "workbegin":
@@ -126,12 +124,16 @@ if __name__ == "__m5_main__":
         if cpu == 'timing':
             system.switchCpus(system.cpu, system.timingCpu)
     else:
-        print("Unexpected termination of simulation !")
+        print("Unexpected termination of simulation!")
         print()
+        m5.stats.dump()
+        end_tick = m5.curTick()
+        end_insts = system.totalInsts()
+        m5.stats.reset()
         print("Performance statistics:")
 
-        print("Simulated time in ROI: %.2fs" % ((end_tick-start_tick)/1e12))
-        print("Instructions executed in ROI: %d" % ((end_insts-start_insts)))
+        print("Simulated time: %.2fs" % ((end_tick-start_tick)/1e12))
+        print("Instructions executed: %d" % ((end_insts-start_insts)))
         print("Ran a total of", m5.curTick()/1e12, "simulated seconds")
         print("Total wallclock time: %.2fs, %.2f min" % \
                     (time.time()-globalStart, (time.time()-globalStart)/60))
@@ -143,9 +145,9 @@ if __name__ == "__m5_main__":
     # Reached the end of ROI
     # Finish executing the benchmark with kvm cpu
     if exit_event.getCause() == "workend":
-        # Reached the start of ROI
-        # start of ROI is marked by an
-        # m5_work_begin() call
+        # Reached the end of ROI
+        # end of ROI is marked by an
+        # m5_work_end() call
         print("Dump stats at the end of the ROI!")
         m5.stats.dump()
         end_tick = m5.curTick()
@@ -155,12 +157,16 @@ if __name__ == "__m5_main__":
         if cpu == 'timing':
             system.switchCpus(system.timingCpu, system.cpu)
     else:
-        print("Unexpected termination of simulation !")
+        print("Unexpected termination of simulation!")
         print()
+        m5.stats.dump()
+        end_tick = m5.curTick()
+        end_insts = system.totalInsts()
+        m5.stats.reset()
         print("Performance statistics:")
 
-        print("Simulated time in ROI: %.2fs" % ((end_tick-start_tick)/1e12))
-        print("Instructions executed in ROI: %d" % ((end_insts-start_insts)))
+        print("Simulated time: %.2fs" % ((end_tick-start_tick)/1e12))
+        print("Instructions executed: %d" % ((end_insts-start_insts)))
         print("Ran a total of", m5.curTick()/1e12, "simulated seconds")
         print("Total wallclock time: %.2fs, %.2f min" % \
                     (time.time()-globalStart, (time.time()-globalStart)/60))

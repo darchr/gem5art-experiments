@@ -238,15 +238,15 @@ class L2Cache(L2Cache_Controller):
         """
         self.DirRequestFromL2Cache = MessageBuffer()
         self.DirRequestFromL2Cache.master = ruby_system.network.slave
-        self.L1RequestFromL2Cache = MessageBuffer(ordered = True)
+        self.L1RequestFromL2Cache = MessageBuffer()
         self.L1RequestFromL2Cache.master = ruby_system.network.slave
-        self.responseFromL2Cache = MessageBuffer(ordered = True)
-        self.responseFromL2Cache.slave = ruby_system.network.master
-        self.unblockToL2Cache = MessageBuffer(ordered = True)
+        self.responseFromL2Cache = MessageBuffer()
+        self.responseFromL2Cache.master = ruby_system.network.slave
+        self.unblockToL2Cache = MessageBuffer()
         self.unblockToL2Cache.slave = ruby_system.network.master
-        self.L1RequestToL2Cache = MessageBuffer(ordered = True)
+        self.L1RequestToL2Cache = MessageBuffer()
         self.L1RequestToL2Cache.slave = ruby_system.network.master
-        self.responseToL2Cache = MessageBuffer(ordered = True)
+        self.responseToL2Cache = MessageBuffer()
         self.responseToL2Cache.slave = ruby_system.network.master   
 
        

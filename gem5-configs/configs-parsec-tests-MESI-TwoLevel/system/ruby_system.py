@@ -33,10 +33,10 @@ from m5.util import convert
 from fs_tools import *
 from MESI_Two_Level import MESITwoLevelCache
 
-class MySystem(LinuxX86System):
+class MyRubySystem(LinuxX86System):
 
     def __init__(self, kernel, disk, cpu_type, num_cpus, opts):
-        super(MySystem, self).__init__()
+        super(MyRubySystem, self).__init__()
         self._opts = opts
 
         self._host_parallel = cpu_type == "kvm"
@@ -90,28 +90,25 @@ class MySystem(LinuxX86System):
     def totalInsts(self):
         return sum([cpu.totalInsts() for cpu in self.cpu])
 
-    def createCPU(self, cpu_type, num_cpus):
-        
-        # Note KVM needs a VM and atomic_noncaching
+    def createCPU(self, cpu_type, num_cpus):       
         self.cpu = [X86KvmCPU(cpu_id = i)
                     for i in range(num_cpus)]
-        map(lambda c: c.createThreads(), self.cpu)
         self.kvm_vm = KvmVM()
         self.mem_mode = 'atomic_noncaching'
 
         self.timingCpu = [TimingSimpleCPU(cpu_id = i,
-                                        switched_out = True)
-				                        for i in range(num_cpus)]
+                        switched_out = True) 
+                        for i in range(num_cpus)]
 
         map(lambda c: c.createThreads(), self.cpu)
         map(lambda c: c.createInterruptController(), self.cpu)
         map(lambda c: c.createThreads(), self.timingCpu)
-        map(lambda c: c.createInterruptController(), self.timingCpu)
 
+        
     def switchCpus(self, old, new):
         assert(new[0].switchedOut())
         m5.switchCpus(self, zip(old, new))
-        
+
     def setDiskImages(self, img_path_1, img_path_2):
         disk0 = CowDisk(img_path_1)
         disk2 = CowDisk(img_path_2)

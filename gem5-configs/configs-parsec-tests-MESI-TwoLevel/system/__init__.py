@@ -27,4 +27,4 @@
 #
 # Authors: Jason Lowe-Power
 
-from ruby_system import MySystem
+from ruby_system import MyRubySystem
