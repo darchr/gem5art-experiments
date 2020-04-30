@@ -37,16 +37,28 @@ import m5
 import m5.ticks
 from m5.objects import *
 
-sys.path.append('gem5/configs/common/') # For the next line...
-import SimpleOpts
+import argparse
 
 from system import *
 
-SimpleOpts.set_usage(
-    "usage: %prog [options] kernel disk cpu_type num_cpus mem_sys benchmark synthetic graph")
-
-SimpleOpts.add_option("--allow_listeners", default=False, action="store_true",
-                      help="Listeners disabled by default")
+def parse_arguments():
+    parser = argparse.ArgumentParser(description=
+                                "gem5 config file to run GAPBS")
+    parser.add_argument("kernel", type = str, help = "Path to vmlinux")
+    parser.add_argument("disk", type = str,
+                        help = "Path to the disk image containing GAPBS")
+    parser.add_argument("cpu_type", type = str, help = "Name of the detailed CPU")
+    parser.add_argument("num_cpus", type = str, help = "Number of CPUs")
+    parser.add_argument("mem_sys", type = str,
+                        help = "Memory model, Classic or MI_example")
+    parser.add_argument("benchmark", type = str,
+                        help = "Name of the GAPBS")
+    parser.add_argument("synthetic", type = int,
+                        help = "1 for synthetic graph, 0 for real graph")
+    parser.add_argument("graph", type = str,
+                        help = "synthetic=1: an integer number. synthetic=0: WebUg, road, ..")
+    
+    return parser.parse_args()
 
 
 def writeBenchScript(dir, benchmark_name, size, synthetic):
@@ -67,24 +79,26 @@ def writeBenchScript(dir, benchmark_name, size, synthetic):
     return input_file_name
 
 if __name__ == "__m5_main__":
-    (opts, args) = SimpleOpts.parse_args()
+    args = parse_arguments()
 
-    # create the system we are going to simulate
-    if len(args) != 8:
-        SimpleOpts.print_help()
-        m5.fatal("Bad arguments")
     
-    kernel, disk, cpu_type, num_cpus, mem_sys, benchmark, synthetic, benchmark_size = args
-    num_cpus = int(num_cpus)
+    kernel = args.kernel
+    disk = args.disk
+    cpu_type = args.cpu_type
+    num_cpus = int(args.num_cpus)
+    mem_sys = args.mem_sys
+    benchmark_name =args.benchmark
+    benchmark_size = args.graph
+    synthetic = args.synthetic
+ 
+    
 
     if (mem_sys == "classic"):
-        system = MySystem(kernel, disk, cpu_type, num_cpus,opts)
+        system = MySystem(kernel, disk, cpu_type, num_cpus)
     elif (mem_sys == "MI_example"):
-        system = MyRubySystem(kernel, disk, cpu_type, mem_sys, num_cpus,opts)
+        system = MyRubySystem(kernel, disk, cpu_type, mem_sys, num_cpus)
 
-    
-    system = MySystem(kernel, disk, cpu_type, num_cpus,opts)
-    benchmark_name = benchmark
+   
 
     output_dir = os.path.join(m5.options.outdir, "speclogs")
 
@@ -111,10 +125,7 @@ if __name__ == "__m5_main__":
         root.sim_quantum = int(1e9) # 1 ms
 
     # instantiate all of the objects we've created above
-        m5.instantiate()
-
-    globalStart = time.time()
-
+    m5.instantiate()
 
     print("Running the simulation")
     exit_event = m5.simulate()

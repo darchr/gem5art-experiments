@@ -22,7 +22,7 @@ packer = Artifact.registerArtifact(
 )
 
 experiments_repo = Artifact.registerArtifact(
-    command = 'git clone https://your-remote-add/gapbs-test.git',
+    command = 'git clone https://github.com/darchr/gem5art-experiments.git',
     typ = 'git repo',
     name = 'gapbs-test',
     path =  './',
@@ -36,7 +36,7 @@ gem5_repo = Artifact.registerArtifact(
     name = 'gem5',
     path =  'gem5/',
     cwd = './',
-    documentation = 'cloned gem5 master branch from googlesource (Nov 18, 2019)'
+    documentation = 'cloned gem5 master branch from googlesource last commit was Feb 20, 2020'
 )
 
 m5_binary = Artifact.registerArtifact(
@@ -54,7 +54,7 @@ disk_image = Artifact.registerArtifact(
     typ = 'disk image',
     name = 'gapbs',
     cwd = 'disk-image',
-    path = 'disk-image/gapbs/gapbs-img/gapbs',
+    path = 'disk-image/gapbs-image/gapbs',
     inputs = [packer, experiments_repo, m5_binary,],
     documentation = 'Ubuntu with m5 binary installed and root auto login'
 )
@@ -68,7 +68,7 @@ gem5_binary = Artifact.registerArtifact(
     cwd = 'gem5/',
     path =  'gem5/build/X86/gem5.opt',
     inputs = [gem5_repo,],
-    documentation = 'gem5 binary based on googlesource (Nov 18, 2019)'
+    documentation = 'gem5 binary based on googlesource (Feb. 20, 2020)'
 )
 
 linux_repo = Artifact.registerArtifact(
@@ -78,7 +78,7 @@ linux_repo = Artifact.registerArtifact(
     name = 'linux-stable',
     path =  'linux-stable/',
     cwd = './',
-    documentation = 'linux kernel source code repo from Sep 23rd'
+    documentation = 'linux kernel 5.3.2 source code repo obtained in November 2019'
 )
 
 
@@ -98,30 +98,45 @@ linux_binaries = Artifact.registerArtifact(
         )
 
 if __name__ == "__main__":
-    boot_types = ['init']
-    num_cpus = ['1']
-    cpu_types = ['kvm']
+    
+    num_cpus = ['1', '2', '4']
     workloads = ['bc', 'bfs', 'cc', 'sssp', 'tc','pr']
-    synthetic = ['1']
-    sizes = ['10']
+    sizes = ['10', '15', '20']
+    graphs = ['roadU.sg', 'webU.sg']
     mem_types = ['classic', 'MI_example']
 
-    for cpu in cpu_types:
-        for num_cpu in num_cpus:
-            for workload in workloads:
-                for syn in synthetic:
-                    for size in sizes: 
-                        for mem in mem_types:
-                            run = gem5Run.createFSRun(
-                                'Running GAPBS',
-                                'gem5/build/X86/gem5.opt',
-                                'configs-gapbs-tests/gapbs_config.py',
-                                'results/run_exit/vmlinux-5.2.3/gapbs/{}/{}/{}/{}/{}/{}'.
-                                format(cpu, num_cpu, mem ,workload, syn, size),
-                                gem5_binary, gem5_repo, experiments_repo,
-                                'linux-stable/vmlinux-5.2.3',
-                                'disk-image/gapbs-image/gapbs',
-                                linux_binaries, disk_image, cpu, num_cpu, mem ,workload, syn, size,
-                                timeout = 6*60*60 
-                                )
-                            run_gem5_instance(run,)
+    for num_cpu in num_cpus:
+        for workload in workloads:
+            for size in sizes: 
+                for mem in mem_types:
+                    run = gem5Run.createFSRun(
+                        'Running GAPBS',
+                        'gem5/build/X86/gem5.opt',
+                        'configs-gapbs-tests/gapbs_config.py',
+                        'results/run_exit/vmlinux-5.2.3/gapbs/kvm/{}/{}/{}/synthetic/{}'.
+                        format( num_cpu, mem ,workload, size),
+                        gem5_binary, gem5_repo, experiments_repo,
+                        'linux-stable/vmlinux-5.2.3',
+                        'disk-image/gapbs-image/gapbs',
+                        linux_binaries, disk_image, 'kvm', num_cpu, mem ,workload, '1', size,
+                        timeout = 6*60*60 
+                        )
+                    run_gem5_instance(run,)
+                            
+    for num_cpu in num_cpus:
+        for workload in workloads:
+            for graph in graphs: 
+                for mem in mem_types:
+                    run = gem5Run.createFSRun(
+                        'Running GAPBS',
+                        'gem5/build/X86/gem5.opt',
+                        'configs-gapbs-tests/gapbs_config.py',
+                        'results/run_exit/vmlinux-5.2.3/gapbs/kvm/{}/{}/{}/realgraph/{}'.
+                        format( num_cpu, mem ,workload, graph),
+                        gem5_binary, gem5_repo, experiments_repo,
+                        'linux-stable/vmlinux-5.2.3',
+                        'disk-image/gapbs-image/gapbs',
+                        linux_binaries, disk_image, 'kvm', num_cpu, mem ,workload, '0', graph,
+                        timeout = 6*60*60 
+                        )
+                    run_gem5_instance(run,)

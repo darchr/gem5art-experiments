@@ -32,18 +32,14 @@ from m5.objects import *
 from m5.util import convert
 from fs_tools import *
 from caches import *
-sys.path.append('configs/common/') # For the next line...
-import SimpleOpts
 
 class MySystem(LinuxX86System):
 
 
-    def __init__(self, kernel, disk, cpu_type, num_cpus, opts):
+    def __init__(self, kernel, disk, cpu_type, num_cpus):
         super(MySystem, self).__init__()
         no_kvm=False
-        self._opts = opts
-        self._no_kvm = no_kvm
-        self._host_parallel = True
+        self._host_parallel = cpu_type == "kvm"
 
         # Set up the clock domain and the voltage domain
         self.clk_domain = SrcClockDomain()
@@ -152,8 +148,8 @@ class MySystem(LinuxX86System):
             cpu.l2bus = L2XBar()
 
             # Create an L1 instruction and data cache
-            cpu.icache = L1ICache(self._opts)
-            cpu.dcache = L1DCache(self._opts)
+            cpu.icache = L1ICache()
+            cpu.dcache = L1DCache()
             cpu.mmucache = MMUCache()
 
             # Connect the instruction and data caches to the CPU
@@ -167,13 +163,13 @@ class MySystem(LinuxX86System):
             cpu.mmucache.connectBus(cpu.l2bus)
 
             # Create an L2 cache and connect it to the l2bus
-            cpu.l2cache = L2Cache(self._opts)
+            cpu.l2cache = L2Cache()
             cpu.l2cache.connectCPUSideBus(cpu.l2bus)
 
             # Connect the L2 cache to the L3 bus
             cpu.l2cache.connectMemSideBus(self.l3bus)
 
-        self.l3cache = L3Cache(self._opts)
+        self.l3cache = L3Cache()
         self.l3cache.connectCPUSideBus(self.l3bus)
 
         # Connect the L3 cache to the membus
