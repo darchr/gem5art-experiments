@@ -66,11 +66,11 @@ if __name__ == "__m5_main__":
     elif mem_sys == "MI_example" or "MESI_Two_Level":
         system = MyRubySystem(kernel, disk, cpu_type, mem_sys, num_cpus, opts)
     else:
-        m5.fatal("Bad option for mem_sys, should be 'ruby' or 'classic'")
+        m5.fatal("Bad option for mem_sys, should be 'MI_example', 'MESI_Two_Level' or 'classic'")
 
     if boot_type == "init":
         # Simply run "exit.sh"
-        system.boot_osflags += ' init=/root/exit.sh'
+        system.workload.command_line += ' init=/root/exit.sh'
     else:
         if boot_type != "systemd":
             SimpleOpts.print_help()

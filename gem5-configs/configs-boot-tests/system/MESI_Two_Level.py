@@ -162,7 +162,7 @@ class L1Cache(L1Cache_Controller):
                             is_icache = False)
         self.l2_select_num_bits = int(math.log(num_l2Caches , 2))
         self.clk_domain = cpu.clk_domain
-        self.prefetcher = RubyPrefetcher.Prefetcher()
+        self.prefetcher = RubyPrefetcher()
         self.send_evictions = self.sendEvicts(cpu)
         self.transitions_per_cycle = 4
         self.enable_prefetch = False
@@ -280,6 +280,7 @@ class DirController(Directory_Controller):
         self.responseToDir.slave = ruby_system.network.master
         self.responseFromDir = MessageBuffer()
         self.responseFromDir.master = ruby_system.network.slave
+        self.requestToMemory = MessageBuffer()
         self.responseFromMemory = MessageBuffer()
 
 class DMAController(DMA_Controller):
