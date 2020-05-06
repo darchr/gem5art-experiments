@@ -136,7 +136,7 @@ if __name__ == "__main__":
             binary_gem5,
             'configs-boot-tests/run_exit.py',
             'results/run_exit/vmlinux-{}/boot-exit/{}/{}/{}/{}'.
-            format(linux, cpu, mem, num_cpu, boot_type),
+                format(linux, cpu, mem, num_cpu, boot_type),
             artifact_gem5, gem5_repo, experiments_repo,
             os.path.join('linux-stable', 'vmlinux'+'-'+linux),
             'disk-image/boot-exit/boot-exit-image/boot-exit',
