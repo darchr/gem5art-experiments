@@ -145,5 +145,8 @@ if __name__ == "__main__":
             timeout = 6*60*60 #6 hours
             )
 
-    for run in starmap(createRun, product(linuxes, boot_types, cpu_types, num_cpus, mem_types)):
+    # For the cross product of tests, create a run object.
+    runs = starmap(createRun, product(linuxes, boot_types, cpu_types, num_cpus, mem_types)):
+    # Run all of these experiments in parallel
+    for run in runs:
         run_gem5_instance.apply_async((run, os.getcwd(),))
