@@ -5,6 +5,8 @@
 import os
 import sys
 from uuid import UUID
+from itertools import starmap
+from itertools import product
 
 from gem5art.artifact.artifact import Artifact
 from gem5art.run import gem5Run
@@ -120,38 +122,28 @@ if __name__ == "__main__":
     cpu_types = ['kvm', 'atomic', 'simple', 'o3']
     mem_types = ['classic', 'MI_example', 'MESI_Two_Level']
 
-    for linux in linuxes:
-        for boot_type in boot_types:
-            for cpu in cpu_types:
-                for num_cpu in num_cpus:
-                    for mem in mem_types:
-                        if mem == 'MESI_Two_Level':
-                            run = gem5Run.createFSRun(
-                                'boot experiment with MESI Two Level',
-                                'gem5/build/X86_MESI_Two_Level/gem5.opt',
-                                'configs-boot-tests/run_exit.py',
-                                'results/run_exit/vmlinux-{}/boot-exit/{}/{}/{}/{}'.
-                                format(linux, cpu, mem, num_cpu, boot_type),
-                                gem5_binary_MESI_Two_Level, gem5_repo, experiments_repo,
-                                os.path.join('linux-stable', 'vmlinux'+'-'+linux),
-                                'disk-image/boot-exit/boot-exit-image/boot-exit',
-                                linux_binaries[linux], disk_image,
-                                cpu, mem, num_cpu, boot_type,
-                                timeout = 6*60*60 #6 hours
-                                )
-                            run_gem5_instance.apply_async((run,))
-                        else:
-                            run = gem5Run.createFSRun(
-                                'boot experiment',
-                                'gem5/build/X86/gem5.opt',
-                                'configs-boot-tests/run_exit.py',
-                                'results/run_exit/vmlinux-{}/boot-exit/{}/{}/{}/{}'.
-                                format(linux, cpu, mem, num_cpu, boot_type),
-                                gem5_binary, gem5_repo, experiments_repo,
-                                os.path.join('linux-stable', 'vmlinux'+'-'+linux),
-                                'disk-image/boot-exit/boot-exit-image/boot-exit',
-                                linux_binaries[linux], disk_image,
-                                cpu, mem, num_cpu, boot_type,
-                                timeout = 6*60*60 #6 hours
-                                )
-                            run_gem5_instance.apply_async((run, os.getcwd(),))
+    def createRun(linux, boot_type, cpu, num_cpu, mem):
+
+        if mem == 'MESI_Two_Level':
+            binary_gem5 = 'gem5/build/X86_MESI_Two_Level/gem5.opt'
+            artifact_gem5 = gem5_binary_MESI_Two_Level
+        else:
+            binary_gem5 = 'gem5/build/X86/gem5.opt'
+            artifact_gem5 = gem5_binary
+
+        return gem5Run.createFSRun(
+            'boot experiments with gem5-20',
+            binary_gem5,
+            'configs-boot-tests/run_exit.py',
+            'results/run_exit/vmlinux-{}/boot-exit/{}/{}/{}/{}'.
+            format(linux, cpu, mem, num_cpu, boot_type),
+            artifact_gem5, gem5_repo, experiments_repo,
+            os.path.join('linux-stable', 'vmlinux'+'-'+linux),
+            'disk-image/boot-exit/boot-exit-image/boot-exit',
+            linux_binaries[linux], disk_image,
+            cpu, mem, num_cpu, boot_type,
+            timeout = 6*60*60 #6 hours
+            )
+
+    for run in starmap(createRun, product(linuxes, boot_types, cpu_types, num_cpus, mem_types)):
+        run_gem5_instance.apply_async((run, os.getcwd(),))
