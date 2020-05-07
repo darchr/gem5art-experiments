@@ -138,6 +138,9 @@ if __name__ == "__m5_main__":
             print("Switch to detailed cpu model")
     else:
         print("ROI is not annotated!")
+        print('Exiting @ tick {} because {}'
+        .format(m5.curTick(), exit_event.getCause()))
+        exit()
         
     exit_event = m5.simulate()
     
