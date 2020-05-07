@@ -32,7 +32,7 @@ from m5.objects import *
 from m5.util import convert
 from fs_tools import *
 
-class MyRubySystem(LinuxX86System):
+class MyRubySystem(System):
 
     def __init__(self, kernel, disk, cpu_type, mem_sys, num_cpus):
         super(MyRubySystem, self).__init__()
@@ -56,12 +56,12 @@ class MyRubySystem(LinuxX86System):
         self.setDiskImages(disk, disk)
 
         # Change this path to point to the kernel you want to use
-        self.kernel = kernel
+        self.workload.object_file = kernel
         # Options specified on the kernel command line
         boot_options = ['earlyprintk=ttyS0', 'console=ttyS0', 'lpj=7999923',
                          'root=/dev/hda1']
 
-        self.boot_osflags = ' '.join(boot_options)
+        self.workload.command_line = ' '.join(boot_options)
 
         # Create the CPUs for our system.
         self.createCPU(cpu_type, num_cpus)
@@ -115,7 +115,9 @@ class MyRubySystem(LinuxX86System):
                                         switched_out = True)
                         for i in range(num_cpus)]
             map(lambda c: c.createThreads(), self.timingCpu)
-        elif cpu_type != "kvm":
+        elif cpu_type == "kvm":
+            pass
+        else:
             m5.fatal("No CPU type {}".format(cpu_type))
 
         map(lambda c: c.createThreads(), self.cpu)
@@ -142,6 +144,8 @@ class MyRubySystem(LinuxX86System):
     def initFS(self, cpus):
         self.pc = Pc()
 
+        self.workload = X86FsLinux()
+
         # North Bridge
         self.iobus = IOXBar()
 
@@ -155,7 +159,7 @@ class MyRubySystem(LinuxX86System):
         ###############################################
 
         # Add in a Bios information structure.
-        self.smbios_table.structures = [X86SMBiosBiosInformation()]
+        self.workload.smbios_table.structures = [X86SMBiosBiosInformation()]
 
         # Set up the Intel MP table
         base_entries = []
@@ -213,8 +217,8 @@ class MyRubySystem(LinuxX86System):
         assignISAInt(1, 1)
         for i in range(3, 15):
             assignISAInt(i, i)
-        self.intel_mp_table.base_entries = base_entries
-        self.intel_mp_table.ext_entries = ext_entries
+        self.workload.intel_mp_table.base_entries = base_entries
+        self.workload.intel_mp_table.ext_entries = ext_entries
 
         entries = \
            [
@@ -231,4 +235,4 @@ class MyRubySystem(LinuxX86System):
         entries.append(X86E820Entry(addr = 0xFFFF0000, size = '64kB',
                                     range_type=2))
 
-        self.e820_table.entries = entries
+        self.workload.e820_table.entries = entries

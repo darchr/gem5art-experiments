@@ -139,7 +139,7 @@ if __name__ == "__m5_main__":
     else:
         print("ROI is not annotated!")
         print('Exiting @ tick {} because {}'
-        .format(m5.curTick(), exit_event.getCause()))
+            .format(m5.curTick(), exit_event.getCause()))
         exit()
         
     exit_event = m5.simulate()
@@ -150,4 +150,5 @@ if __name__ == "__m5_main__":
     exit_event = m5.simulate()
     m5.stats.dump()
     m5.stats.reset()
-    print('Exiting @ tick %i because %s' % (m5.curTick(), exit_event.getCause()))
+    print('Exiting @ tick {} because {}'
+        .format(m5.curTick(), exit_event.getCause()))

@@ -50,6 +50,9 @@ class MESITwoLevelCache(RubySystem):
 
         super(MESITwoLevelCache, self).__init__()
 
+        # This is the number of "banks" for the L2 cache. This could be parameterized
+        # in the future.
+
         self._numL2Caches = 8
 
     def setup(self, system, cpus, mem_ctrls, dma_ports, iobus):
@@ -95,7 +98,7 @@ class MESITwoLevelCache(RubySystem):
         for i,c in enumerate(self.controllers[:len(cpus)]):
             c.sequencer = self.sequencers[i]
 
-        #Connecting the DMA sequencer to DMA controller
+        # Connecting the DMA sequencer to DMA controller
         for i,d in enumerate(self.controllers[-len(dma_ports):]):
             i += len(cpus)
             d.dma_sequencer = self.sequencers[i]
@@ -160,7 +163,7 @@ class L1Cache(L1Cache_Controller):
                             is_icache = False)
         self.l2_select_num_bits = int(math.log(num_l2Caches , 2))
         self.clk_domain = cpu.clk_domain
-        self.prefetcher = RubyPrefetcher.Prefetcher()
+        self.prefetcher = RubyPrefetcher
         self.send_evictions = self.sendEvicts(cpu)
         self.transitions_per_cycle = 4
         self.enable_prefetch = False
@@ -278,6 +281,7 @@ class DirController(Directory_Controller):
         self.responseToDir.slave = ruby_system.network.master
         self.responseFromDir = MessageBuffer()
         self.responseFromDir.master = ruby_system.network.slave
+        self.requestToMemory = MessageBuffer()
         self.responseFromMemory = MessageBuffer()
 
 class DMAController(DMA_Controller):
