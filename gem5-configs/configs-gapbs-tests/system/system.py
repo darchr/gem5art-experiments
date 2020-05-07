@@ -103,31 +103,30 @@ class MySystem(LinuxX86System):
         return sum([cpu.totalInsts() for cpu in self.cpu])
 
     def createCPU(self, cpu_type, num_cpus):
-        print(cpu_type)
+        self.cpu = [X86KvmCPU(cpu_id = i)
+                        for i in range(num_cpus)]
+        self.kvm_vm = KvmVM()
+        self.mem_mode = 'atomic_noncaching'
         if cpu_type == "atomic":
-            self.cpu = [AtomicSimpleCPU(cpu_id = i , switched_out = False)
+            self.timingCpu = [AtomicSimpleCPU(cpu_id = i,
+                                        switched_out = True)
                               for i in range(num_cpus)]
-            self.mem_mode = 'atomic'
-        
-        elif cpu_type == "kvm":
-            # Note KVM needs a VM and atomic_noncaching
-            self.cpu = [X86KvmCPU(cpu_id = i)
-                        for i in range(num_cpus)]
-            self.kvm_vm = KvmVM()
-            self.mem_mode = 'atomic_noncaching'
-             
+            map(lambda c: c.createThreads(), self.timingCpu)
         elif cpu_type == "o3":
-            self.cpu = [DerivO3CPU(cpu_id = i)
+            self.timingCpu = [DerivO3CPU(cpu_id = i,
+                                        switched_out = True)
                         for i in range(num_cpus)]
-            self.mem_mode = 'timing'
+            map(lambda c: c.createThreads(), self.timingCpu)
         elif cpu_type == "simple":
-            self.cpu = [TimingSimpleCPU(cpu_id = i)
+            self.timingCpu = [TimingSimpleCPU(cpu_id = i,
+                                        switched_out = True)
                         for i in range(num_cpus)]
-            self.mem_mode = 'timing'
-        else:
+            map(lambda c: c.createThreads(), self.timingCpu)
+        elif cpu_type != "kvm":
             m5.fatal("No CPU type {}".format(cpu_type))
-            
+
         map(lambda c: c.createThreads(), self.cpu)
+        map(lambda c: c.createInterruptController(), self.cpu)
 
     def switchCpus(self, old, new):
         assert(new[0].switchedOut())
