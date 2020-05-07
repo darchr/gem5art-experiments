@@ -69,7 +69,7 @@ To compile the linux kernel for all versions (v5.2.3, v4.19.83, v4.14.134, v4.9.
 git clone https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
 mv linux linux-stable
 cd linux-stable
-for V in 5.2.3 4.19.83 4.14.134 4.9.186 4.4.186; do git checkout v$V; cp ../linux-configs/config.$V .config; make -j128; cp vmlinux vmlinux-$V;  done;
+for V in 5.2.3 4.19.83 4.14.134 4.9.186 4.4.186; do git checkout v$V; cp ../linux-configs/config.$V .config; make -j8; cp vmlinux vmlinux-$V;  done;
 ```
 
 Run the database (if not already running) using (run this command after creating a directory):
