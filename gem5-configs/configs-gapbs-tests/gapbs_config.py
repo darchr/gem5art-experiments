@@ -126,7 +126,7 @@ if __name__ == "__m5_main__":
     # instantiate all of the objects we've created above
     m5.instantiate()
 
-     print("Running the simulation")
+    print("Running the simulation")
     exit_event = m5.simulate()
     if exit_event.getCause() == "work started count reach":
         m5.stats.reset()
