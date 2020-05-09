@@ -77,6 +77,9 @@ class MyRubySystem(System):
         elif mem_sys == 'MESI_Two_Level':
             from MESI_Two_Level import MESITwoLevelCache
             self.caches = MESITwoLevelCache()
+        elif mem_sys == 'MOESI_CMP_directory':
+            from MOESI_CMP_directory import MOESICMPDirCache
+            self.caches = MOESICMPDirCache()
         self.caches.setup(self, self.cpu, self.mem_cntrls,
                           [self.pc.south_bridge.ide.dma, self.iobus.master],
                           self.iobus)

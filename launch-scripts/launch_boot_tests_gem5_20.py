@@ -87,6 +87,19 @@ gem5_binary_MESI_Two_Level = Artifact.registerArtifact(
     documentation = 'gem5 binary based on googlesource (Nov 18, 2019)'
 )
 
+gem5_binary_MOESI_CMP_directory = Artifact.registerArtifact(
+    command = '''cd gem5;
+    git checkout release-staging-v20.0.0.0;
+    scons build/MOESI_CMP_directory/gem5.opt --default=X86 PROTOCOL=MOESI_CMP_directory -j8
+    ''',
+    typ = 'gem5 binary',
+    name = 'gem5',
+    cwd = 'gem5/',
+    path =  'gem5/build/MOESI_CMP_directory/gem5.opt',
+    inputs = [gem5_repo,],
+    documentation = 'gem5 binary based on googlesource (Nov 18, 2019)'
+)
+
 linux_repo = Artifact.registerArtifact(
     command = '''git clone https://github.com/torvalds/linux.git;
     mv linux linux-stable''',
@@ -120,13 +133,16 @@ if __name__ == "__main__":
     boot_types = ['init', 'systemd']
     num_cpus = ['1', '2', '4', '8']
     cpu_types = ['kvm', 'atomic', 'simple', 'o3']
-    mem_types = ['classic', 'MI_example', 'MESI_Two_Level']
+    mem_types = ['classic', 'MI_example', 'MESI_Two_Level', 'MOESI_CMP_directory']
 
     def createRun(linux, boot_type, cpu, num_cpu, mem):
 
         if mem == 'MESI_Two_Level':
             binary_gem5 = 'gem5/build/X86_MESI_Two_Level/gem5.opt'
             artifact_gem5 = gem5_binary_MESI_Two_Level
+        elif mem == 'MOESI_CMP_directory':
+            binary_gem5 = 'gem5/build/MOESI_CMP_directory/gem5.opt'
+            artifact_gem5 = gem5_binary_MOESI_CMP_directory
         else:
             binary_gem5 = 'gem5/build/X86/gem5.opt'
             artifact_gem5 = gem5_binary
