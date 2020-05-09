@@ -220,7 +220,7 @@ class L2Cache(L2Cache_Controller):
         # This is the cache memory object that stores the cache data and tags
         self.L2cache = RubyCache(size = '1 MB',
                                 assoc = 16,
-                                start_index_bit = self.getBlockSizeBits(system, num_l2Caches),
+                                start_index_bit = self.getL2StartIdx(system, num_l2Caches),
                                 dataAccessLatency = 20,
                                 tagAccessLatency = 20)
         
@@ -228,7 +228,7 @@ class L2Cache(L2Cache_Controller):
         self.ruby_system = ruby_system
         self.connectQueues(ruby_system)
 
-    def getBlockSizeBits(self, system, num_l2caches):
+    def getL2StartIdx(self, system, num_l2caches):
         l2_bits = int(math.log(num_l2caches, 2))
         bits = int(math.log(system.cache_line_size, 2)) + l2_bits
         return bits
