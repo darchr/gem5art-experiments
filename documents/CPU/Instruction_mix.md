@@ -5,7 +5,7 @@ So when the latency of the memory is set to single cycle, the total number of cy
 
 ## Motivation
 
-If we can find the instruction mix from the IPC by running the workload with TImingSimpleCPu in Single cycle latency, it would help us understand weather the workload better by just looking at IPC.
+If we can find the instruction mix from the IPC by running the workload with TImingSimpleCPU in Single cycle latency, it would help us understand the workload better by just looking at IPC.
 
 Comparing this result against a realistic memory can also be used to understand how much does the memory latency affect the overall performance.
 
