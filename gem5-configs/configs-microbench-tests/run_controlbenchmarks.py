@@ -39,30 +39,95 @@ from m5.objects import *
 from system import BaseTestSystem
 from system import InfMemory, SingleCycleMemory, SlowMemory
 
+# Branch predictor params
+
+# If indirect Predictor is disabled use BTB with these params
+btbEntries = 512
+btbTagSize = 19
+
+class IndirectPred(SimpleIndirectPredictor):
+    indirectSets = 256 # Cache sets for indirect predictor
+    indirectWays = 2 # Ways for indirect predictor
+    indirectTagSize = 16 # Indirect target cache tag bits
+    indirectPathLength = 3 # Previous indirect targets to use for path history
+    indirectGHRBits = 13 # Indirect GHR number of bits
+
+ipred = SimpleIndirectPredictor()
+
 #CPU Configs
 class Simple_LocalBP(TimingSimpleCPU):
     branchPred = LocalBP()
-
-class Simple_BiModeBP(TimingSimpleCPU):
-    branchPred = BiModeBP()
-    
-class Simple_TournamentBP(TimingSimpleCPU):
-    branchPred = TournamentBP()
-    
-class Simple_LTAGEBP(TimingSimpleCPU):
-    branchPred = LTAGE()
+    branchPred.BTBEntries = btbEntries
+    branchPred.BTBTagSize = btbTagSize
+    branchPred.indirectBranchPred = ipred # set this to null to disable indirect predictior
+    branchPred.localPredictorSize = 2048
+    branchPred.localCtrBits = 2
 
 class DefaultO3_LocalBP(DerivO3CPU):
     branchPred = LocalBP()
+    branchPred.BTBEntries = btbEntries
+    branchPred.BTBTagSize = btbTagSize
+    branchPred.indirectBranchPred = ipred # set this to null to disable indirect predictior
+    branchPred.localPredictorSize = 2048
+    branchPred.localCtrBits = 2
+
+class Simple_BiModeBP(TimingSimpleCPU):
+    branchPred = BiModeBP()
+    branchPred.BTBEntries = btbEntries
+    branchPred.BTBTagSize = btbTagSize
+    branchPred.indirectBranchPred = ipred # set this to null to disable indirect predictior
+    branchPred.globalPredictorSize = 8192
+    branchPred.globalCtrBits = 2
+    branchPred.choicePredictorSize = 8192
+    branchPred.choiceCtrBits = 2
 
 class DefaultO3_BiModeBP(DerivO3CPU):
     branchPred = BiModeBP()
+    branchPred.BTBEntries = btbEntries
+    branchPred.BTBTagSize = btbTagSize
+    branchPred.indirectBranchPred = ipred # set this to null to disable indirect predictior
+    branchPred.globalPredictorSize = 8192
+    branchPred.globalCtrBits = 2
+    branchPred.choicePredictorSize = 8192
+    branchPred.choiceCtrBits = 2
+
+class Simple_TournamentBP(TimingSimpleCPU):
+    branchPred = TournamentBP()
+    branchPred.BTBEntries = btbEntries
+    branchPred.BTBTagSize = btbTagSize
+    branchPred.indirectBranchPred = ipred # set this to null to disable indirect predictior
+    branchPred.localPredictorSize = 2048
+    branchPred.localCtrBits = 2
+    branchPred.localHistoryTableSize = 2048
+    branchPred.globalPredictorSize = 8192
+    branchPred.globalCtrBits = 2
+    branchPred.choicePredictorSize = 8192
+    branchPred.choiceCtrBits = 2
 
 class DefaultO3_TournamentBP(DerivO3CPU):
     branchPred = TournamentBP()
+    branchPred.BTBEntries = btbEntries
+    branchPred.BTBTagSize = btbTagSize
+    branchPred.indirectBranchPred = ipred # set this to null to disable indirect predictior
+    branchPred.localPredictorSize = 2048
+    branchPred.localCtrBits = 2
+    branchPred.localHistoryTableSize = 2048
+    branchPred.globalPredictorSize = 8192
+    branchPred.globalCtrBits = 2
+    branchPred.choicePredictorSize = 8192
+    branchPred.choiceCtrBits = 2
+
+class Simple_LTAGEBP(TimingSimpleCPU):
+    branchPred = LTAGE()
+    branchPred.BTBEntries = btbEntries
+    branchPred.BTBTagSize = btbTagSize
+    branchPred.indirectBranchPred = ipred # set this to null to disable indirect predictior
 
 class DefaultO3_LTAGEBP(DerivO3CPU):
     branchPred = LTAGE()
+    branchPred.BTBEntries = btbEntries
+    branchPred.BTBTagSize = btbTagSize
+    branchPred.indirectBranchPred = ipred # set this to null to disable indirect predictior
 
 # Add more CPUs Configs under test before this
 valid_configs = [Simple_LocalBP, Simple_BiModeBP, Simple_TournamentBP, Simple_LTAGEBP, DefaultO3_LocalBP, DefaultO3_BiModeBP, DefaultO3_TournamentBP, DefaultO3_LTAGEBP]
