@@ -61,44 +61,24 @@ disk_image = Artifact.registerArtifact(
     documentation = 'Ubuntu with m5 binary installed and root auto login'
 )
 
-gem5_binary = Artifact.registerArtifact(
-    command = '''cd gem5;
-    git checkout 003c08418f841e6697b1b;
-    scons build/X86/gem5.opt -j8
-    ''',
-    typ = 'gem5 binary',
-    name = 'gem5',
-    cwd = 'gem5/',
-    path =  'gem5/build/X86/gem5.opt',
-    inputs = [gem5_repo,],
-    documentation = 'gem5 binary based on googlesource/release-staging-v20.0.0.0 (Nov 4, 2020)'
-)
 
-gem5_binary_MESI_Two_Level = Artifact.registerArtifact(
-    command = '''cd gem5;
-    git checkout d40f0bc579fb8b10da7181;
-    scons build/X86_MESI_Two_Level/gem5.opt --default=X86 PROTOCOL=MESI_Two_Level SLICC_HTML=True -j8
-    ''',
-    typ = 'gem5 binary',
-    name = 'gem5',
-    cwd = 'gem5/',
-    path =  'gem5/build/X86_MESI_Two_Level/gem5.opt',
-    inputs = [gem5_repo,],
-    documentation = 'gem5 binary based on googlesource (Nov 18, 2019)'
-)
-
-gem5_binary_MOESI_CMP_directory = Artifact.registerArtifact(
-    command = '''cd gem5;
-    git checkout release-staging-v20.0.0.0;
-    scons build/MOESI_CMP_directory/gem5.opt --default=X86 PROTOCOL=MOESI_CMP_directory -j8
-    ''',
-    typ = 'gem5 binary',
-    name = 'gem5',
-    cwd = 'gem5/',
-    path =  'gem5/build/MOESI_CMP_directory/gem5.opt',
-    inputs = [gem5_repo,],
-    documentation = 'gem5 binary based on googlesource (Nov 18, 2019)'
-)
+ruby_mem_types = ['MI_example', 'MESI_Two_Level', 'MOESI_CMP_directory']
+gem5_artifacts = {
+        mem: Artifact.registerArtifact(
+                command = f'''cd gem5;
+                git checkout release-staging-v20.0.0.0;
+                scons build/X86_{mem}/gem5.opt --default=X86 PROTOCOL={mem} -j8
+                ''',
+                typ = 'gem5 binary',
+                name = f'gem5-{mem}',
+                cwd = 'gem5/',
+                path =  f'gem5/build/X86_{mem}/gem5.opt',
+                inputs = [gem5_repo,],
+                documentation = f'gem5 {mem} binary based on '
+                    'googlesource/release-staging-v20.0.0.0 (April 4, 2020)'
+                )
+        for mem in ruby_mem_types
+}
 
 linux_repo = Artifact.registerArtifact(
     command = '''git clone https://github.com/torvalds/linux.git;
@@ -133,19 +113,17 @@ if __name__ == "__main__":
     boot_types = ['init', 'systemd']
     num_cpus = ['1', '2', '4', '8']
     cpu_types = ['kvm', 'atomic', 'simple', 'o3']
-    mem_types = ['classic', 'MI_example', 'MESI_Two_Level', 'MOESI_CMP_directory']
+    mem_types = ['classic'] + ruby_mem_types 
 
     def createRun(linux, boot_type, cpu, num_cpu, mem):
 
-        if mem == 'MESI_Two_Level':
-            binary_gem5 = 'gem5/build/X86_MESI_Two_Level/gem5.opt'
-            artifact_gem5 = gem5_binary_MESI_Two_Level
-        elif mem == 'MOESI_CMP_directory':
-            binary_gem5 = 'gem5/build/MOESI_CMP_directory/gem5.opt'
-            artifact_gem5 = gem5_binary_MOESI_CMP_directory
+        if mem in gem5_artifacts:
+            artifact_gem5 = gem5_artifacts[mem]
         else:
-            binary_gem5 = 'gem5/build/X86/gem5.opt'
-            artifact_gem5 = gem5_binary
+            # We can use any binary for classic
+            artifact_gem5 = gem5_artifacts[ruby_mem_types[0]]
+        
+        binary_gem5 = artifact_gem5.path
 
         return gem5Run.createFSRun(
             'boot experiments with gem5-20',
