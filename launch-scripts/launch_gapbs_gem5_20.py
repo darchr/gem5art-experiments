@@ -42,13 +42,13 @@ gem5_repo = Artifact.registerArtifact(
 )
 
 m5_binary = Artifact.registerArtifact(
-    command = 'make -f Makefile.x86',
+    command = 'scons build/x86/out/m5',
     typ = 'binary',
     name = 'm5',
-    path =  'gem5/util/m5/m5',
+    path =  'gem5/util/m5/build/x86/out/m5',
     cwd = 'gem5/util/m5',
     inputs = [gem5_repo,],
-    documentation = 'm5 utility'
+    documentation = 'm5 utility for gem5-20'
 )
 
 disk_image = Artifact.registerArtifact(
@@ -114,7 +114,7 @@ linux_binaries = Artifact.registerArtifact(
         )
 
 if __name__ == "__main__":
-    
+
     num_cpus = ['1', '2', '4']
     workloads = ['bc', 'bfs', 'cc', 'sssp', 'tc','pr']
     sizes = ['3', '15', '20']
@@ -141,11 +141,11 @@ if __name__ == "__main__":
             'linux-stable/vmlinux-5.2.3',
             'disk-image/gapbs-image/gapbs',
             linux_binaries, disk_image, cpu, num_cpu, mem ,workload, '1', size,
-            timeout = 6*60*60 
+            timeout = 6*60*60
             )
-        
+
     def createRun_realGraph(cpu, num_cpu, mem, workload,graph):
-    
+
         if mem == 'MESI_Two_Level':
             binary_gem5 = 'gem5/build/X86_MESI_Two_Level/gem5.opt'
             artifact_gem5 = gem5_binary_MESI_Two_Level
@@ -163,17 +163,17 @@ if __name__ == "__main__":
             'linux-stable/vmlinux-5.2.3',
             'disk-image/gapbs-image/gapbs',
             linux_binaries, disk_image, cpu, num_cpu, mem ,workload, '0', graph,
-            timeout = 6*60*60 
+            timeout = 6*60*60
             )
-        
+
     # For the cross product of tests, create a run object.
     runs = starmap(createRun_synthetic, product(cpu_types, num_cpus, mem_types,workloads,sizes))
     # Run all of these experiments in parallel
     for run in runs:
         run_gem5_instance(run, os.getcwd(),)
-        
+
     runs = starmap(createRun_realGraph, product(cpu_types, num_cpus, mem_types,workloads,graphs))
     # Run all of these experiments in parallel
     for run in runs:
         run_gem5_instance(run, os.getcwd(),)
-    
+

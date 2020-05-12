@@ -69,14 +69,14 @@ class MyRubySystem(System):
         self.createMemoryControllersDDR3()
 
         # Create the cache hierarchy for the system.
-        
+
         if mem_sys == 'MI_example':
             from MI_example_caches import MIExampleSystem
             self.caches = MIExampleSystem()
         elif mem_sys == 'MESI_Two_Level':
             from MESI_Two_Level import MESITwoLevelCache
-            self.caches = MESITwoLevelCache()    
-        
+            self.caches = MESITwoLevelCache()
+
         self.caches.setup(self, self.cpu, self.mem_cntrls,
                           [self.pc.south_bridge.ide.dma, self.iobus.master],
                           self.iobus)

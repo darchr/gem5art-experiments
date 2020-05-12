@@ -141,9 +141,9 @@ if __name__ == "__m5_main__":
         print('Exiting @ tick {} because {}'
             .format(m5.curTick(), exit_event.getCause()))
         exit()
-        
+
     exit_event = m5.simulate()
-    
+
     if exit_event.getCause() == "work items exit count reached":
         m5.stats.dump()
         m5.stats.reset()

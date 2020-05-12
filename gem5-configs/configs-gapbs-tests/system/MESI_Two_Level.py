@@ -27,8 +27,8 @@
 
 
 """ This file creates a set of Ruby caches for the MESI TWO Level protocol
-This protocol models two level cache hierarchy. The L1 cache is split into 
-instruction and data cache. 
+This protocol models two level cache hierarchy. The L1 cache is split into
+instruction and data cache.
 This system support the memory size of up to 3GB.
 """
 
@@ -78,8 +78,8 @@ class MESITwoLevelCache(RubySystem):
             [L2Cache(system, self, self._numL2Caches) for num in range(self._numL2Caches)] + \
             [DirController(self, system.mem_ranges, mem_ctrls)] + \
             [DMAController(self) for i in range(len(dma_ports))]
-        
-        # Create one sequencer per CPU and dma controller. 
+
+        # Create one sequencer per CPU and dma controller.
         # Sequencers for other controllers can be here here.
         self.sequencers = [RubySequencer(version = i,
                                 # I/D cache is combined and grab from ctrl
@@ -145,7 +145,7 @@ class L1Cache(L1Cache_Controller):
            2-way set associative.
         """
         super(L1Cache, self).__init__()
-        
+
         self.version = self.versionCount()
         block_size_bits = int(math.log(system.cache_line_size, 2))
         l1i_size = '32kB'
@@ -205,9 +205,9 @@ class L1Cache(L1Cache_Controller):
         self.requestToL1Cache.slave = ruby_system.network.master
         self.responseToL1Cache = MessageBuffer()
         self.responseToL1Cache.slave = ruby_system.network.master
-        
+
 class L2Cache(L2Cache_Controller):
-    
+
     _version = 0
     @classmethod
     def versionCount(cls):
@@ -215,7 +215,7 @@ class L2Cache(L2Cache_Controller):
         return cls._version - 1
 
     def __init__(self, system, ruby_system, num_l2Caches):
-        
+
         super(L2Cache, self).__init__()
 
         self.version = self.versionCount()
@@ -223,7 +223,7 @@ class L2Cache(L2Cache_Controller):
         self.L2cache = RubyCache(size = '1 MB',
                                 assoc = 16,
                                 start_index_bit = self.getBlockSizeBits(system, num_l2Caches))
-        
+
         self.transitions_per_cycle = '4'
         self.ruby_system = ruby_system
         self.connectQueues(ruby_system)
@@ -248,9 +248,9 @@ class L2Cache(L2Cache_Controller):
         self.L1RequestToL2Cache = MessageBuffer()
         self.L1RequestToL2Cache.slave = ruby_system.network.master
         self.responseToL2Cache = MessageBuffer()
-        self.responseToL2Cache.slave = ruby_system.network.master   
+        self.responseToL2Cache.slave = ruby_system.network.master
 
-       
+
 
 class DirController(Directory_Controller):
 
