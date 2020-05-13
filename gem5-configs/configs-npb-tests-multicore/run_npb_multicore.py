@@ -34,7 +34,7 @@
     number of instructions executed in the ROI. It also tracks how much
     wallclock and simulated time.
 """
-
+import errno
 import os
 import sys
 import time
@@ -45,7 +45,7 @@ from m5.objects import *
 sys.path.append('gem5/configs/common/') # For the next line...
 import SimpleOpts
 
-from system import MySystem
+from system import *
 
 def writeBenchScript(dir, bench):
     """
@@ -67,13 +67,23 @@ def writeBenchScript(dir, bench):
 
 if __name__ == "__m5_main__":
     (opts, args) = SimpleOpts.parse_args()
-    kernel, disk, cpu, benchmark, num_cpus = args
+    kernel, disk, cpu, mem_sys, benchmark, num_cpus = args
 
     if not cpu in ['atomic', 'kvm', 'timing']:
         m5.fatal("cpu not supported")
 
     # create the system we are going to simulate
     system = MySystem(kernel, disk, int(num_cpus), opts, no_kvm=False)
+
+
+    ruby_protocols = [ "MI_example", "MESI_Two_Level", "MOESI_CMP_directory"]
+    
+    if mem_sys == "classic":
+        system = MySystem(kernel, disk, int(num_cpus), opts, no_kvm=False)
+    elif mem_sys in ruby_protocols:
+        system = MyRubySystem(kernel, disk, mem_sys, int(num_cpus), opts)
+    else:
+        m5.fatal("Bad option for mem_sys")
 
     # Exit from guest on workbegin/workend
     system.exit_on_work_items = True
