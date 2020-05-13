@@ -67,7 +67,20 @@ gem5_binary = Artifact.registerArtifact(
     cwd = 'gem5/',
     path =  'gem5/build/X86/gem5.opt',
     inputs = [gem5_repo,],
-    documentation = 'gem5 binary based on googlesource/release-staging-v20.0.0.0 (Nov 4, 2020)'
+    documentation = 'gem5 binary based on googlesource/release-staging-v20.0.0.0 (May 10, 2020)'
+)
+
+gem5_binary_MESI_Two_Level = Artifact.registerArtifact(
+    command = '''cd gem5;
+    git checkout release-staging-v20.0.0.0;
+    scons build/MOESI_CMP_directory/gem5.opt --default=X86 PROTOCOL=MESI_Two_Level -j8
+    ''',
+    typ = 'gem5 binary',
+    name = 'gem5',
+    cwd = 'gem5/',
+    path =  'gem5/build/X86_MESI_Two_Level/gem5.opt',
+    inputs = [gem5_repo,],
+    documentation = 'gem5 binary based on googlesource/release-staging-v20.0.0.0 (May 10, 2020)'
 )
 
 linux_repo = Artifact.registerArtifact(
@@ -96,30 +109,39 @@ linux_binary = Artifact.registerArtifact(
 
 
 if __name__ == "__main__":
-    num_cpus = ['1', '8', '16', '32', '64']
+    num_cpus = ['1', '8']
     benchmarks = ['is.x', 'ep.x', 'cg.x', 'mg.x','ft.x', 'bt.x', 'sp.x', 'lu.x']
 
     classes = ['A']
+    mem_sys = ['classic', 'MESI_Two_Level']
     cpus = ['kvm', 'timing']
 
 
-    def createRun(bench, clas, cpu, num_cpu):
+    def createRun(bench, clas, cpu, mem, num_cpu):
+
+        if mem == 'MESI_Two_Level':
+            binary_gem5 = 'gem5/build/X86_MESI_Two_Level/gem5.opt'
+            artifact_gem5 = gem5_binary_MESI_Two_Level
+        else:
+            binary_gem5 = 'gem5/build/X86/gem5.opt'
+            artifact_gem5 = gem5_binary
+
         return gem5Run.createFSRun(
             'npb_multicore_tests with gem5-20',    
-            'gem5/build/X86/gem5.opt',
-            'configs-npb-tests-multicore/run_npb_multicore.py',
+            binary_gem5,
+            'configs-npb-tests-multicore-new/run_npb_multicore.py',
             f'''results/run_npb_multicore/{bench}/{clas}/{cpu}/{num_cpu}''',
-            gem5_binary, gem5_repo, experiments_repo,
+            artifact_gem5, gem5_repo, experiments_repo,
             'linux-stable/vmlinux-4.19.83',
             'disk-image/npb/npb-image/npb',
             linux_binary, disk_image,
-            cpu, bench.replace('.x', f'.{clas}.x'), num_cpu,
+            cpu, mem, bench.replace('.x', f'.{clas}.x'), num_cpu,
             timeout = 240*60*60 #240 hours
             )
 
 
     # For the cross product of tests, create a run object.
-    runs = starmap(createRun, product(benchmarks, classes, cpus, num_cpus))
+    runs = starmap(createRun, product(benchmarks, classes, cpus, mem_sys, num_cpus))
     # Run all of these experiments in parallel
     for run in runs:
         run_gem5_instance.apply_async((run, os.getcwd(),))
