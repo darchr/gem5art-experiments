@@ -24,17 +24,18 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-# Authors: Jason Lowe-Power, Ayaz Akram
+# Authors: Jason Lowe-Power, Mahyar Samani
 
-""" Script to run NAS parallel benchmarks with gem5.
-    The script expects kernel, diskimage, cpu (kvm or atomic),
-    benchmark to run and number of cpus as arguments.
-
-    If your application has ROI annotations, this script will count the total
-    number of instructions executed in the ROI. It also tracks how much
-    wallclock and simulated time.
+""" Script to run PARSEC benchmarks with gem5.
+    The script expects kernel, diskimage, cpu (kvm or timing),
+    benchmark, benchmark size, and number of cpu cores as arguments.
+    This script is best used if your disk-image has workloads tha have
+    ROI annotations compliant with m5 utility. You can use the script in 
+    ../disk-images/parsec/ with the parsec-benchmark repo at 
+    https://github.com/darchr/parsec-benchmark.git to create a working
+    disk-image for this script.
 """
-
+import errno
 import os
 import sys
 import time
@@ -45,7 +46,7 @@ from m5.objects import *
 sys.path.append('gem5/configs/common/') # For the next line...
 import SimpleOpts
 
-from system import MySystem
+from system import *
 
 def writeBenchScript(dir, bench, size):
     """
@@ -66,11 +67,12 @@ def writeBenchScript(dir, bench, size):
     bench_file.write('m5 exit \n')
     bench_file.close()
     return file_name
+
 if __name__ == "__m5_main__":
     (opts, args) = SimpleOpts.parse_args()
     kernel, disk, cpu, benchmark, size, num_cpus = args
 
-    if not cpu in ['timing', 'kvm']:
+    if not cpu in ['kvm', 'timing']:
         m5.fatal("cpu not supported")
 
     # create the system we are going to simulate
@@ -119,7 +121,7 @@ if __name__ == "__m5_main__":
         m5.stats.reset()
         start_tick = m5.curTick()
         start_insts = system.totalInsts()
-        # switching to atomic cpu if argument cpu == atomic
+        # switching to timing cpu if argument cpu == atomic
         if cpu == 'timing':
             system.switchCpus(system.cpu, system.timingCpu)
     else:

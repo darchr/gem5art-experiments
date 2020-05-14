@@ -1,6 +1,8 @@
 import os
 import sys
 from uuid import UUID
+from itertools import starmap
+from itertools import product
 
 from gem5art.artifact import Artifact
 from gem5art.run import gem5Run
@@ -14,7 +16,7 @@ packer = Artifact.registerArtifact(
     name = 'packer',
     path =  'disk-image/packer',
     cwd = 'disk-image',
-    documentation = 'Program to build disk images. Downloaded sometime in August from hashicorp.'
+    documentation = 'Program to build disk images. Downloaded sometime in August 2019 from hashicorp.'
 )
 
 experiments_repo = Artifact.registerArtifact(
@@ -34,30 +36,28 @@ parsec_repo = Artifact.registerArtifact(
     name = 'parsec_repo',
     path =  './disk-image/parsec-benchmark/parsec-benchmark/',
     cwd = './disk-image/',
-    documentation = 'main repo to copy parsec source to the disk-image'
+    documentation = '''main repo to copy parsec source to the disk-image, the reason behind creating a directory with same name inside 
+        disk-image/parsec-benchmark is this way when the benchmark is copied to the disk-image they would not be scatted in ~ directory'''
 )
 
 gem5_repo = Artifact.registerArtifact(
     command = '''
         git clone https://gem5.googlesource.com/public/gem5;
         cd gem5;
-        git remote add darchr https://github.com/darchr/gem5;
-        git fetch darchr;
-        git cherry-pick 6450aaa7ca9e3040fb9eecf69c51a01884ac370c;
-        git cherry-pick 3403665994b55f664f4edfc9074650aaa7ddcd2c;
+        git checkout release-staging-v20.0.0.0;
     ''',
     typ = 'git repo',
     name = 'gem5',
     path =  'gem5/',
     cwd = './',
-    documentation = 'cloned gem5 master branch from googlesource (Nov 18, 2019) and cherry-picked 2 commits from darchr/gem5'
+    documentation = 'cloned gem5 from the google repository using branch release-staging-v20.0.0.0'
 )
 
 m5_binary = Artifact.registerArtifact(
-    command = 'make -f Makefile.x86',
+    command = 'scons build/x86/out/m5',
     typ = 'binary',
     name = 'm5',
-    path =  'gem5/util/m5/m5',
+    path =  'gem5/util/m5/build/x86/out/m5',
     cwd = 'gem5/util/m5',
     inputs = [gem5_repo,],
     documentation = 'm5 utility'
@@ -70,11 +70,11 @@ disk_image = Artifact.registerArtifact(
     cwd = 'disk-image',
     path = 'disk-image/parsec/parsec-image/parsec',
     inputs = [packer, experiments_repo, m5_binary, parsec_repo,],
-    documentation = 'Ubuntu with m5 binary and PARSEC installed.'
+    documentation = 'Disk-image using Ubuntu 18.04 with m5 binary and PARSEC installed.'
 )
 
 gem5_binary = Artifact.registerArtifact(
-    command = 'scons build/X86/gem5.opt',
+    command = 'scons build/X86/gem5.opt -j12',
     typ = 'gem5 binary',
     name = 'gem5',
     cwd = 'gem5/',
@@ -109,28 +109,28 @@ linux_binary = Artifact.registerArtifact(
 
 
 if __name__ == "__main__":
-    num_cpus = ['1']
     benchmarks = ['blackscholes', 'bodytrack', 'canneal', 'dedup','facesim', 'ferret', 'fluidanimate', 'freqmine', 'raytrace', 'streamcluster', 'swaptions', 'vips', 'x264']
 
     sizes = ['simsmall', 'simlarge', 'native']
     cpus = ['kvm', 'timing']
 
-    for cpu in cpus:
-        for num_cpu in num_cpus:
-            for size in sizes:
-                if cpu == 'timing' and size != 'simsmall':
-                    continue
-                for bm in benchmarks:
-                    run = gem5Run.createFSRun(
-                        'parsec_tests',    
-                        'gem5/build/X86/gem5.opt',
-                        'configs-parsec-tests/run_parsec.py',
-                        f'''results/run_parsec/{bm}/{size}/{cpu}/{num_cpu}''',
-                        gem5_binary, gem5_repo, experiments_repo,
-                        'linux-stable/vmlinux-4.19.83',
-                        'disk-image/parsec/parsec-image/parsec',
-                        linux_binary, disk_image,
-                        cpu, bm, size, num_cpu,
-                        timeout = 24*60*60 #24 hours
-                        )
-                    run_gem5_instance.apply_async((run, os.getcwd(), ))
+    def createRun(bench, size, cpu):
+        if cpu == 'timing' and size != 'simsmall':
+            return 
+        return gem5Run.createFSRun(
+            'parsec classic memory tests with gem5-20',    
+            'gem5/build/X86/gem5.opt',
+            'configs-parsec-tests/run_parsec.py',
+            f'''results/run_parsec/{bench}/{size}/{cpu}''',
+            gem5_binary, gem5_repo, experiments_repo,
+            'linux-stable/vmlinux-4.19.83',
+            'disk-image/parsec/parsec-image/parsec',
+            linux_binary, disk_image,
+            cpu, bench, size, '1',
+            timeout = 24*60*60 #24 hours
+            )
+    # For the cross product of tests, create a run object.
+    runs = starmap(createRun, product(benchmarks, sizes, cpus))
+    # Run all of these experiments in parallel
+    for run in runs:
+        run_gem5_instance.apply_async((run, os.getcwd(),))
