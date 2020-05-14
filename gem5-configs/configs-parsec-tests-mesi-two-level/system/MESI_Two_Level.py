@@ -29,9 +29,7 @@
 """ This file creates a set of Ruby caches for the MESI TWO Level protocol
 This protocol models two level cache hierarchy. The L1 cache is split into 
 instruction and data cache. 
-
 This system support the memory size of up to 3GB.
-
 """
 
 from __future__ import print_function
@@ -119,6 +117,7 @@ class MESITwoLevelCache(RubySystem):
         for i,cpu in enumerate(cpus):
             cpu.icache_port = self.sequencers[i].slave
             cpu.dcache_port = self.sequencers[i].slave
+            cpu.createInterruptController()
             isa = buildEnv['TARGET_ISA']
             if isa == 'x86':
                 cpu.interrupts[0].pio = self.sequencers[i].master
@@ -162,7 +161,7 @@ class L1Cache(L1Cache_Controller):
                             is_icache = False)
         self.l2_select_num_bits = int(math.log(num_l2Caches , 2))
         self.clk_domain = cpu.clk_domain
-        self.prefetcher = RubyPrefetcher.Prefetcher()
+        self.prefetcher = RubyPrefetcher()
         self.send_evictions = self.sendEvicts(cpu)
         self.transitions_per_cycle = 4
         self.enable_prefetch = False
@@ -280,6 +279,7 @@ class DirController(Directory_Controller):
         self.responseToDir.slave = ruby_system.network.master
         self.responseFromDir = MessageBuffer()
         self.responseFromDir.master = ruby_system.network.slave
+        self.requestToMemory = MessageBuffer()
         self.responseFromMemory = MessageBuffer()
 
 class DMAController(DMA_Controller):

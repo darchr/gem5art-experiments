@@ -26,15 +26,18 @@
 #
 # Authors: Jason Lowe-Power, Ayaz Akram
 
-""" Script to run NAS parallel benchmarks with gem5.
-    The script expects kernel, diskimage, cpu (kvm or atomic),
-    benchmark to run and number of cpus as arguments.
+""" Script to run PARSEC benchmarks with gem5. The memory model used
+    in the experiments is Ruby and uses MESEI_Two_Level protocolx.
+    The script expects kernel, diskimage, cpu (kvm or timing),
+    benchmark, benchmark size, and number of cpu cores as arguments.
+    This script is best used if your disk-image has workloads tha have
+    ROI annotations compliant with m5 utility. You can use the script in 
+    ../disk-images/parsec/ with the parsec-benchmark repo at 
+    https://github.com/darchr/parsec-benchmark.git to create a working
+    disk-image for this script. 
 
-    If your application has ROI annotations, this script will count the total
-    number of instructions executed in the ROI. It also tracks how much
-    wallclock and simulated time.
 """
-
+import errno
 import os
 import sys
 import time
@@ -69,13 +72,13 @@ def writeBenchScript(dir, bench, size):
 
 if __name__ == "__m5_main__":
     (opts, args) = SimpleOpts.parse_args()
-    kernel, disk, cpu, benchmark, size, num_cpus, boot_type = args
+    kernel, disk, cpu, benchmark, size, num_cpus = args
 
-    if not cpu in ['timing', 'kvm']:
+    if not cpu in ['kvm', 'timing']:
         m5.fatal("cpu not supported")
 
     # create the system we are going to simulate
-    system = MyRubySystem(kernel, disk, cpu, int(num_cpus), opts)
+    system = MyRubySystem(kernel, disk, int(num_cpus), opts)
 
     # Exit from guest on workbegin/workend
     system.exit_on_work_items = True
