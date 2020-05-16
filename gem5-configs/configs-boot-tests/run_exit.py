@@ -67,7 +67,8 @@ if __name__ == "__m5_main__":
     elif mem_sys in ruby_protocols:
         system = MyRubySystem(kernel, disk, cpu_type, mem_sys, num_cpus, opts)
     else:
-        m5.fatal("Bad option for mem_sys, should be {}, or 'classic'".format(', '.join(ruby_protocols)")
+        m5.fatal("Bad option for mem_sys, should be "
+        "{}, or 'classic'".format(', '.join(ruby_protocols)))
 
     if boot_type == "init":
         # Simply run "exit.sh"
