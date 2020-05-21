@@ -50,9 +50,11 @@ class MESITwoLevelCache(RubySystem):
 
         super(MESITwoLevelCache, self).__init__()
 
+       
+       
+       
         # This is the number of "banks" for the L2 cache. This could be parameterized
         # in the future.
-
         self._numL2Caches = 8
 
     def setup(self, system, cpus, mem_ctrls, dma_ports, iobus):
