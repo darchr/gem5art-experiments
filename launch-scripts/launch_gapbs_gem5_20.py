@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# This is a job launch script for GAPBS tests with gem5-19
+# This is a job launch script for GAPBS tests with gem5-20
 
 import os
 import sys
@@ -38,17 +38,17 @@ gem5_repo = Artifact.registerArtifact(
     name = 'gem5',
     path =  'gem5/',
     cwd = './',
-    documentation = 'cloned gem5 master branch from googlesource last commit was Feb 20, 2020'
+    documentation = 'cloned gem5 from googlesource and checked out release-staging-v20.0.0.0 (May 6th, 2020)'
 )
 
 m5_binary = Artifact.registerArtifact(
-    command = 'make -f Makefile.x86',
+    command = 'scons build/x86/out/m5',
     typ = 'binary',
     name = 'm5',
-    path =  'gem5/util/m5/m5',
+    path =  'gem5/util/m5/build/x86/out/m5',
     cwd = 'gem5/util/m5',
     inputs = [gem5_repo,],
-    documentation = 'm5 utility'
+    documentation = 'm5 utility for gem5-20'
 )
 
 disk_image = Artifact.registerArtifact(
@@ -63,6 +63,7 @@ disk_image = Artifact.registerArtifact(
 
 gem5_binary = Artifact.registerArtifact(
     command = '''cd gem5;
+    git checkout 003c08418f841e6697b1b;
     scons build/X86/gem5.opt -j20
     ''',
     typ = 'gem5 binary',
@@ -70,12 +71,12 @@ gem5_binary = Artifact.registerArtifact(
     cwd = 'gem5/',
     path =  'gem5/build/X86/gem5.opt',
     inputs = [gem5_repo,],
-    documentation = 'gem5 binary based on googlesource/release-staging-v20.0.0.0 (May 10, 2020)'
+    documentation = 'gem5 binary based on googlesource/release-staging-v20.0.0.0'
 )
 
 gem5_binary_MESI_Two_Level = Artifact.registerArtifact(
     command = '''cd gem5;
-    git checkout release-staging-v20.0.0.0;
+    git checkout d40f0bc579fb8b10da7181;
     scons build/X86_MESI_Two_Level/gem5.opt --default=X86 PROTOCOL=MESI_Two_Level SLICC_HTML=True -j8
     ''',
     typ = 'gem5 binary',
@@ -83,7 +84,7 @@ gem5_binary_MESI_Two_Level = Artifact.registerArtifact(
     cwd = 'gem5/',
     path =  'gem5/build/X86_MESI_Two_Level/gem5.opt',
     inputs = [gem5_repo,],
-    documentation = 'gem5 binary based on googlesource/release-staging-v20.0.0.0 (May 10, 2020)'
+    documentation = 'gem5 binary based on googlesource (Feb. 20, 2020)'
 )
 
 linux_repo = Artifact.registerArtifact(
@@ -113,10 +114,10 @@ linux_binaries = Artifact.registerArtifact(
         )
 
 if __name__ == "__main__":
-    
+
     num_cpus = ['1', '2', '4']
     workloads = ['bc', 'bfs', 'cc', 'sssp', 'tc','pr']
-    sizes = ['10', '15', '20']
+    sizes = ['3', '15', '20']
     cpu_types = ['kvm', 'atomic', 'simple', 'o3']
     graphs = ['roadU.sg', 'webU.sg']
     mem_types = ['classic', 'MI_example','MESI_Two_Level']
@@ -131,7 +132,7 @@ if __name__ == "__main__":
             artifact_gem5 = gem5_binary
 
         return gem5Run.createFSRun(
-            'Running GAPBS with gem5',
+            'Running GAPBS with gem5-20',
             binary_gem5,
             'configs-gapbs-tests/gapbs_config.py',
             'results/run_exit/vmlinux-5.2.3/gapbs/{}/{}/{}/{}/synthetic/{}'.
@@ -153,7 +154,7 @@ if __name__ == "__main__":
             artifact_gem5 = gem5_binary
 
         return gem5Run.createFSRun(
-            'Running GAPBS with gem5',
+            'Running GAPBS with gem5-20',
             binary_gem5,
             'configs-gapbs-tests/gapbs_config.py',
             'results/run_exit/vmlinux-5.2.3/gapbs/{}/{}/{}/{}/real_graph/{}'.
@@ -175,3 +176,4 @@ if __name__ == "__main__":
     # Run all of these experiments in parallel
     for run in runs:
         run_gem5_instance(run, os.getcwd(),)
+

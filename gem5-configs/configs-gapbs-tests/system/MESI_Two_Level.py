@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
-# Copyright (c) 2015 Jason Power
-# All rights reserved.
+#Copyright (c) 2020 The Regents of the University of California.
+#All Rights Reserved
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
@@ -25,17 +24,12 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-# Authors: Jason Power
 
-""" This file creates a set of Ruby caches, the Ruby network, and a simple
-point-to-point topology.
-See Part 3 in the Learning gem5 book: learning.gem5.org/book/part3
-You can change simple_ruby to import from this file instead of from msi_caches
-to use the MI_example protocol instead of MSI.
 
-IMPORTANT: If you modify this file, it's likely that the Learning gem5 book
-           also needs to be updated. For now, email Jason <jason@lowepower.com>
-
+""" This file creates a set of Ruby caches for the MESI TWO Level protocol
+This protocol models two level cache hierarchy. The L1 cache is split into
+instruction and data cache.
+This system support the memory size of up to 3GB.
 """
 
 from __future__ import print_function
@@ -48,13 +42,20 @@ from m5.util import fatal, panic
 
 from m5.objects import *
 
-class MIExampleSystem(RubySystem):
+class MESITwoLevelCache(RubySystem):
 
     def __init__(self):
-        if buildEnv['PROTOCOL'] != 'MI_example':
-            fatal("This system assumes MI_example!")
+        if buildEnv['PROTOCOL'] != 'MESI_Two_Level':
+            fatal("This system assumes MESI_Two_Level!")
 
-        super(MIExampleSystem, self).__init__()
+        super(MESITwoLevelCache, self).__init__()
+
+       
+       
+       
+        # This is the number of "banks" for the L2 cache. This could be parameterized
+        # in the future.
+        self._numL2Caches = 8
 
     def setup(self, system, cpus, mem_ctrls, dma_ports, iobus):
         """Set up the Ruby cache subsystem. Note: This can't be done in the
@@ -65,27 +66,27 @@ class MIExampleSystem(RubySystem):
         # Ruby's global network.
         self.network = MyNetwork(self)
 
-        # MI example uses 5 virtual networks
+        # MESI_Two_Level example uses 5 virtual networks
         self.number_of_virtual_networks = 5
         self.network.number_of_virtual_networks = 5
 
         # There is a single global list of all of the controllers to make it
         # easier to connect everything to the global network. This can be
         # customized depending on the topology/network requirements.
-        # Create one controller for each L1 cache (and the cache mem obj.)
-        # Create a single directory controller (Really the memory cntrl)
+        # L1 caches are private to a core, hence there are one L1 cache per CPU core.
+        # The number of L2 caches are dependent to the architecture.
         self.controllers = \
-            [L1Cache(system, self, cpu) for cpu in cpus] + \
+            [L1Cache(system, self, cpu, self._numL2Caches) for cpu in cpus] + \
+            [L2Cache(system, self, self._numL2Caches) for num in range(self._numL2Caches)] + \
             [DirController(self, system.mem_ranges, mem_ctrls)] + \
             [DMAController(self) for i in range(len(dma_ports))]
 
-        # Create one sequencer per CPU. In many systems this is more
-        # complicated since you have to create sequencers for DMA controllers
-        # and other controllers, too.
+        # Create one sequencer per CPU and dma controller.
+        # Sequencers for other controllers can be here here.
         self.sequencers = [RubySequencer(version = i,
                                 # I/D cache is combined and grab from ctrl
-                                icache = self.controllers[i].cacheMemory,
-                                dcache = self.controllers[i].cacheMemory,
+                                icache = self.controllers[i].L1Icache,
+                                dcache = self.controllers[i].L1Dcache,
                                 clk_domain = self.controllers[i].clk_domain,
                                 pio_master_port = iobus.slave,
                                 mem_master_port = iobus.slave,
@@ -96,9 +97,10 @@ class MIExampleSystem(RubySystem):
                             for i,port in enumerate(dma_ports)
                           ]
 
-        for i,c in enumerate(self.controllers[0:len(cpus)]):
+        for i,c in enumerate(self.controllers[:len(cpus)]):
             c.sequencer = self.sequencers[i]
 
+        # Connecting the DMA sequencer to DMA controller
         for i,d in enumerate(self.controllers[-len(dma_ports):]):
             i += len(cpus)
             d.dma_sequencer = self.sequencers[i]
@@ -138,19 +140,35 @@ class L1Cache(L1Cache_Controller):
         cls._version += 1 # Use count for this particular type
         return cls._version - 1
 
-    def __init__(self, system, ruby_system, cpu):
-        """CPUs are needed to grab the clock domain and system is needed for
-           the cache block size.
+    def __init__(self, system, ruby_system, cpu, num_l2Caches):
+        """Creating L1 cache controller. Consist of both instruction
+           and data cache. The size of data cache is 512KB and
+           8-way set associative. The instruction cache is 32KB,
+           2-way set associative.
         """
         super(L1Cache, self).__init__()
 
         self.version = self.versionCount()
+        block_size_bits = int(math.log(system.cache_line_size, 2))
+        l1i_size = '32kB'
+        l1i_assoc = '2'
+        l1d_size = '512kB'
+        l1d_assoc = '8'
         # This is the cache memory object that stores the cache data and tags
-        self.cacheMemory = RubyCache(size = '16kB',
-                               assoc = 8,
-                               start_index_bit = self.getBlockSizeBits(system))
+        self.L1Icache = RubyCache(size = l1i_size,
+                                assoc = l1i_assoc,
+                                start_index_bit = block_size_bits ,
+                                is_icache = True)
+        self.L1Dcache = RubyCache(size = l1d_size,
+                            assoc = l1d_assoc,
+                            start_index_bit = block_size_bits,
+                            is_icache = False)
+        self.l2_select_num_bits = int(math.log(num_l2Caches , 2))
         self.clk_domain = cpu.clk_domain
+        self.prefetcher = RubyPrefetcher
         self.send_evictions = self.sendEvicts(cpu)
+        self.transitions_per_cycle = 4
+        self.enable_prefetch = False
         self.ruby_system = ruby_system
         self.connectQueues(ruby_system)
 
@@ -176,14 +194,65 @@ class L1Cache(L1Cache_Controller):
         """Connect all of the queues for this controller.
         """
         self.mandatoryQueue = MessageBuffer()
-        self.requestFromCache = MessageBuffer(ordered = True)
-        self.requestFromCache.master = ruby_system.network.slave
-        self.responseFromCache = MessageBuffer(ordered = True)
-        self.responseFromCache.master = ruby_system.network.slave
-        self.forwardToCache = MessageBuffer(ordered = True)
-        self.forwardToCache.slave = ruby_system.network.master
-        self.responseToCache = MessageBuffer(ordered = True)
-        self.responseToCache.slave = ruby_system.network.master
+        self.requestFromL1Cache = MessageBuffer()
+        self.requestFromL1Cache.master = ruby_system.network.slave
+        self.responseFromL1Cache = MessageBuffer()
+        self.responseFromL1Cache.master = ruby_system.network.slave
+        self.unblockFromL1Cache = MessageBuffer()
+        self.unblockFromL1Cache.master = ruby_system.network.slave
+
+        self.optionalQueue = MessageBuffer()
+
+        self.requestToL1Cache = MessageBuffer()
+        self.requestToL1Cache.slave = ruby_system.network.master
+        self.responseToL1Cache = MessageBuffer()
+        self.responseToL1Cache.slave = ruby_system.network.master
+
+class L2Cache(L2Cache_Controller):
+
+    _version = 0
+    @classmethod
+    def versionCount(cls):
+        cls._version += 1 # Use count for this particular type
+        return cls._version - 1
+
+    def __init__(self, system, ruby_system, num_l2Caches):
+
+        super(L2Cache, self).__init__()
+
+        self.version = self.versionCount()
+        # This is the cache memory object that stores the cache data and tags
+        self.L2cache = RubyCache(size = '1 MB',
+                                assoc = 16,
+                                start_index_bit = self.getBlockSizeBits(system, num_l2Caches))
+
+        self.transitions_per_cycle = '4'
+        self.ruby_system = ruby_system
+        self.connectQueues(ruby_system)
+
+    def getBlockSizeBits(self, system, num_l2caches):
+        l2_bits = int(math.log(num_l2caches, 2))
+        bits = int(math.log(system.cache_line_size, 2)) + l2_bits
+        return bits
+
+
+    def connectQueues(self, ruby_system):
+        """Connect all of the queues for this controller.
+        """
+        self.DirRequestFromL2Cache = MessageBuffer()
+        self.DirRequestFromL2Cache.master = ruby_system.network.slave
+        self.L1RequestFromL2Cache = MessageBuffer()
+        self.L1RequestFromL2Cache.master = ruby_system.network.slave
+        self.responseFromL2Cache = MessageBuffer()
+        self.responseFromL2Cache.master = ruby_system.network.slave
+        self.unblockToL2Cache = MessageBuffer()
+        self.unblockToL2Cache.slave = ruby_system.network.master
+        self.L1RequestToL2Cache = MessageBuffer()
+        self.L1RequestToL2Cache.slave = ruby_system.network.master
+        self.responseToL2Cache = MessageBuffer()
+        self.responseToL2Cache.slave = ruby_system.network.master
+
+
 
 class DirController(Directory_Controller):
 
@@ -208,17 +277,12 @@ class DirController(Directory_Controller):
         self.connectQueues(ruby_system)
 
     def connectQueues(self, ruby_system):
-        self.requestToDir = MessageBuffer(ordered = True)
+        self.requestToDir = MessageBuffer()
         self.requestToDir.slave = ruby_system.network.master
-        self.dmaRequestToDir = MessageBuffer(ordered = True)
-        self.dmaRequestToDir.slave = ruby_system.network.master
-
+        self.responseToDir = MessageBuffer()
+        self.responseToDir.slave = ruby_system.network.master
         self.responseFromDir = MessageBuffer()
         self.responseFromDir.master = ruby_system.network.slave
-        self.dmaResponseFromDir = MessageBuffer(ordered = True)
-        self.dmaResponseFromDir.master = ruby_system.network.slave
-        self.forwardFromDir = MessageBuffer()
-        self.forwardFromDir.master = ruby_system.network.slave
         self.requestToMemory = MessageBuffer()
         self.responseFromMemory = MessageBuffer()
 
@@ -238,10 +302,10 @@ class DMAController(DMA_Controller):
 
     def connectQueues(self, ruby_system):
         self.mandatoryQueue = MessageBuffer()
-        self.requestToDir = MessageBuffer()
-        self.requestToDir.master = ruby_system.network.slave
         self.responseFromDir = MessageBuffer(ordered = True)
         self.responseFromDir.slave = ruby_system.network.master
+        self.requestToDir = MessageBuffer()
+        self.requestToDir.master = ruby_system.network.slave
 
 
 class MyNetwork(SimpleNetwork):
