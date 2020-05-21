@@ -70,12 +70,12 @@ gem5_binary = Artifact.registerArtifact(
     cwd = 'gem5/',
     path =  'gem5/build/X86/gem5.opt',
     inputs = [gem5_repo,],
-    documentation = 'gem5 binary based on googlesource (Feb. 20, 2020)'
+    documentation = 'gem5 binary based on googlesource/release-staging-v20.0.0.0 (May 10, 2020)'
 )
 
 gem5_binary_MESI_Two_Level = Artifact.registerArtifact(
     command = '''cd gem5;
-    git checkout d40f0bc579fb8b10da7181;
+    git checkout release-staging-v20.0.0.0;
     scons build/X86_MESI_Two_Level/gem5.opt --default=X86 PROTOCOL=MESI_Two_Level SLICC_HTML=True -j8
     ''',
     typ = 'gem5 binary',
@@ -83,7 +83,7 @@ gem5_binary_MESI_Two_Level = Artifact.registerArtifact(
     cwd = 'gem5/',
     path =  'gem5/build/X86_MESI_Two_Level/gem5.opt',
     inputs = [gem5_repo,],
-    documentation = 'gem5 binary based on googlesource (Feb. 20, 2020)'
+    documentation = 'gem5 binary based on googlesource/release-staging-v20.0.0.0 (May 10, 2020)'
 )
 
 linux_repo = Artifact.registerArtifact(
