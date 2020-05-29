@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
-#This is a job launch script for boot tests
+# This is a job launch script for GAPBS tests with gem5-19
 
 import os
 import sys
 from uuid import UUID
+from itertools import starmap
+from itertools import product
 
 from gem5art.artifact.artifact import Artifact
 from gem5art.run import gem5Run
@@ -68,7 +70,20 @@ gem5_binary = Artifact.registerArtifact(
     cwd = 'gem5/',
     path =  'gem5/build/X86/gem5.opt',
     inputs = [gem5_repo,],
-    documentation = 'gem5 binary based on googlesource (Feb. 20, 2020)'
+    documentation = 'gem5 binary based on googlesource/release-staging-v20.0.0.0 (May 10, 2020)'
+)
+
+gem5_binary_MESI_Two_Level = Artifact.registerArtifact(
+    command = '''cd gem5;
+    git checkout release-staging-v20.0.0.0;
+    scons build/X86_MESI_Two_Level/gem5.opt --default=X86 PROTOCOL=MESI_Two_Level SLICC_HTML=True -j8
+    ''',
+    typ = 'gem5 binary',
+    name = 'gem5',
+    cwd = 'gem5/',
+    path =  'gem5/build/X86_MESI_Two_Level/gem5.opt',
+    inputs = [gem5_repo,],
+    documentation = 'gem5 binary based on googlesource/release-staging-v20.0.0.0 (May 10, 2020)'
 )
 
 linux_repo = Artifact.registerArtifact(
@@ -102,41 +117,61 @@ if __name__ == "__main__":
     num_cpus = ['1', '2', '4']
     workloads = ['bc', 'bfs', 'cc', 'sssp', 'tc','pr']
     sizes = ['10', '15', '20']
+    cpu_types = ['kvm', 'atomic', 'simple', 'o3']
     graphs = ['roadU.sg', 'webU.sg']
-    mem_types = ['classic', 'MI_example']
+    mem_types = ['classic', 'MI_example','MESI_Two_Level']
 
-    for num_cpu in num_cpus:
-        for workload in workloads:
-            for size in sizes: 
-                for mem in mem_types:
-                    run = gem5Run.createFSRun(
-                        'Running GAPBS',
-                        'gem5/build/X86/gem5.opt',
-                        'configs-gapbs-tests/gapbs_config.py',
-                        'results/run_exit/vmlinux-5.2.3/gapbs/kvm/{}/{}/{}/synthetic/{}'.
-                        format( num_cpu, mem ,workload, size),
-                        gem5_binary, gem5_repo, experiments_repo,
-                        'linux-stable/vmlinux-5.2.3',
-                        'disk-image/gapbs-image/gapbs',
-                        linux_binaries, disk_image, 'kvm', num_cpu, mem ,workload, '1', size,
-                        timeout = 6*60*60 
-                        )
-                    run_gem5_instance(run,)
-                            
-    for num_cpu in num_cpus:
-        for workload in workloads:
-            for graph in graphs: 
-                for mem in mem_types:
-                    run = gem5Run.createFSRun(
-                        'Running GAPBS',
-                        'gem5/build/X86/gem5.opt',
-                        'configs-gapbs-tests/gapbs_config.py',
-                        'results/run_exit/vmlinux-5.2.3/gapbs/kvm/{}/{}/{}/realgraph/{}'.
-                        format( num_cpu, mem ,workload, graph),
-                        gem5_binary, gem5_repo, experiments_repo,
-                        'linux-stable/vmlinux-5.2.3',
-                        'disk-image/gapbs-image/gapbs',
-                        linux_binaries, disk_image, 'kvm', num_cpu, mem ,workload, '0', graph,
-                        timeout = 6*60*60 
-                        )
-                    run_gem5_instance(run,)
+    def createRun_synthetic(cpu, num_cpu, mem, workload,size):
+
+        if mem == 'MESI_Two_Level':
+            binary_gem5 = 'gem5/build/X86_MESI_Two_Level/gem5.opt'
+            artifact_gem5 = gem5_binary_MESI_Two_Level
+        else:
+            binary_gem5 = 'gem5/build/X86/gem5.opt'
+            artifact_gem5 = gem5_binary
+
+        return gem5Run.createFSRun(
+            'Running GAPBS with gem5',
+            binary_gem5,
+            'configs-gapbs-tests/gapbs_config.py',
+            'results/run_exit/vmlinux-5.2.3/gapbs/{}/{}/{}/{}/synthetic/{}'.
+            format(cpu, num_cpu, mem ,workload, size),
+            artifact_gem5, gem5_repo, experiments_repo,
+            'linux-stable/vmlinux-5.2.3',
+            'disk-image/gapbs-image/gapbs',
+            linux_binaries, disk_image, cpu, num_cpu, mem ,workload, '1', size,
+            timeout = 6*60*60
+            )
+
+    def createRun_realGraph(cpu, num_cpu, mem, workload,graph):
+
+        if mem == 'MESI_Two_Level':
+            binary_gem5 = 'gem5/build/X86_MESI_Two_Level/gem5.opt'
+            artifact_gem5 = gem5_binary_MESI_Two_Level
+        else:
+            binary_gem5 = 'gem5/build/X86/gem5.opt'
+            artifact_gem5 = gem5_binary
+
+        return gem5Run.createFSRun(
+            'Running GAPBS with gem5',
+            binary_gem5,
+            'configs-gapbs-tests/gapbs_config.py',
+            'results/run_exit/vmlinux-5.2.3/gapbs/{}/{}/{}/{}/real_graph/{}'.
+            format(cpu, num_cpu, mem ,workload, size),
+            artifact_gem5, gem5_repo, experiments_repo,
+            'linux-stable/vmlinux-5.2.3',
+            'disk-image/gapbs-image/gapbs',
+            linux_binaries, disk_image, cpu, num_cpu, mem ,workload, '0', graph,
+            timeout = 6*60*60
+            )
+
+    # For the cross product of tests, create a run object.
+    runs = starmap(createRun_synthetic, product(cpu_types, num_cpus, mem_types,workloads,sizes))
+    # Run all of these experiments in parallel
+    for run in runs:
+        run_gem5_instance(run, os.getcwd(),)
+
+    runs = starmap(createRun_realGraph, product(cpu_types, num_cpus, mem_types,workloads,graphs))
+    # Run all of these experiments in parallel
+    for run in runs:
+        run_gem5_instance(run, os.getcwd(),)
