@@ -6,6 +6,7 @@ from gem5art.artifact import Artifact
 from gem5art.run import gem5Run
 from gem5art.tasks.tasks import run_gem5_instance
 
+import multiprocessing as mp
 
 experiments_repo = Artifact.registerArtifact(
     command = '',
@@ -18,18 +19,14 @@ experiments_repo = Artifact.registerArtifact(
 
 gem5_repo = Artifact.registerArtifact(
     command = '''
-        git clone https://gem5.googlesource.com/public/gem5;
+        git clone -b release-staging-v20.0.0.0 https://gem5.googlesource.com/public/gem5 gem5
         cd gem5;
-        git remote add darchr https://github.com/darchr/gem5;
-        git fetch darchr;
-        git cherry-pick 6450aaa7ca9e3040fb9eecf69c51a01884ac370c;
-        git cherry-pick 3403665994b55f664f4edfc9074650aaa7ddcd2c;
     ''',
     typ = 'git repo',
     name = 'gem5',
     path =  'gem5/',
     cwd = './',
-    documentation = 'cloned gem5 master branch from googlesource and cherry-picked 2 commits on Nov 20th'
+    documentation = 'cloned staging branch gem5-20'
 )
 
 gem5_binary = Artifact.registerArtifact(
@@ -39,17 +36,17 @@ gem5_binary = Artifact.registerArtifact(
     cwd = 'gem5/',
     path =  'gem5/build/X86/gem5.opt',
     inputs = [gem5_repo,],
-    documentation = 'compiled gem5 binary right after downloading the source code, this has two cherry picked changes to fix m5 readfile in KVM'
+    documentation = 'compiled gem5 binary'
 )
 
 m5_binary = Artifact.registerArtifact(
-    command = 'make -f Makefile.x86',
+    command = 'scons build/x86/out/m5',
     typ = 'binary',
     name = 'm5',
-    path =  'gem5/util/m5/m5',
+    path =  'gem5/util/m5/build/x86/out/m5',
     cwd = 'gem5/util/m5',
     inputs = [gem5_repo,],
-    documentation = 'm5 utility'
+    documentation = 'm5 utility with gem5'
 )
 
 packer = Artifact.registerArtifact(
@@ -61,7 +58,7 @@ packer = Artifact.registerArtifact(
     name = 'packer',
     path =  'disk-image/packer',
     cwd = 'disk-image',
-    documentation = 'Program to build disk images. Downloaded sometime in November from hashicorp.'
+    documentation = 'Program to build disk images. Downloaded in May from hashicorp.'
 )
 
 disk_image = Artifact.registerArtifact(
@@ -83,7 +80,7 @@ linux_repo = Artifact.registerArtifact(
     name = 'linux-4.19.83',
     path =  'linux-4.19.83',
     cwd = './',
-    documentation = 'Linux kernel 4.19 source code repo obtained in November'
+    documentation = 'Linux kernel 4.19 source code repo obtained on 19th Feb 2020'
 )
 
 linux_binary = Artifact.registerArtifact(
@@ -94,7 +91,7 @@ linux_binary = Artifact.registerArtifact(
     command = '''
         cp linux-configs/config.4.19.83 linux-4.19.83/.config
         cd linux-4.19.83
-        make -j8
+        make -j $(nproc)
         cp vmlinux vmlinux-4.19.83
     ''',
     inputs = [experiments_repo, linux_repo,],
@@ -103,13 +100,13 @@ linux_binary = Artifact.registerArtifact(
 
 run_script_repo = Artifact.registerArtifact(
     command = '''
-        wget https://raw.githubusercontent.com/darchr/gem5art/master/docs/configs-spec-tests/run_spec.py
+        wget https://raw.githubusercontent.com/darchr/gem5art/master/docs/gem5-configs/gem5-configs/configs-spec-tests/run_spec.py
         mkdir -p system
         cd system
-        wget https://raw.githubusercontent.com/darchr/gem5art/master/docs/configs-spec-tests/system/__init__.py
-        wget https://raw.githubusercontent.com/darchr/gem5art/master/docs/configs-spec-tests/system/caches.py
-        wget https://raw.githubusercontent.com/darchr/gem5art/master/docs/configs-spec-tests/system/fs_tools.py
-        wget https://raw.githubusercontent.com/darchr/gem5art/master/docs/configs-spec-tests/system/system.py
+        wget https://raw.githubusercontent.com/darchr/gem5art/master/docs/gem5-configs/configs-spec-tests/system/__init__.py
+        wget https://raw.githubusercontent.com/darchr/gem5art/master/docs/gem5-configs/configs-spec-tests/system/caches.py
+        wget https://raw.githubusercontent.com/darchr/gem5art/master/docs/gem5-configs/configs-spec-tests/system/fs_tools.py
+        wget https://raw.githubusercontent.com/darchr/gem5art/master/docs/gem5-configs/configs-spec-tests/system/system.py
     ''',
     typ = 'git repo',
     name = 'gem5-configs',
@@ -118,8 +115,13 @@ run_script_repo = Artifact.registerArtifact(
     documentation = 'gem5 run scripts made specifically for SPEC benchmarks'
 )
 
+def worker(run):
+    run.run()
+    json = run.dumpsJson()
+    print(json)
+
 if __name__ == "__main__":
-    cpus = ['kvm', 'atomic', 'o3', 'timing']
+    #cpus = ['kvm', 'atomic', 'o3', 'timing']
     benchmark_sizes = {'kvm':    ['test', 'ref'],
                        'atomic': ['test'],
                        'o3':     ['test'],
@@ -135,24 +137,29 @@ if __name__ == "__main__":
                   "600.perlbench_s", "602.gcc_s", "605.mcf_s", "620.omnetpp_s", "623.xalancbmk_s", "625.x264_s",
                   "631.deepsjeng_s", "641.leela_s", "648.exchange2_s", "657.xz_s", "998.specrand_is"]
 
+    jobs = []
+
     for cpu in cpus:
         for size in benchmark_sizes[cpu]:
             for benchmark in benchmarks:
                 run = gem5Run.createFSRun(
-                    'gem5/build/X86/gem5.opt', # gem5_binary
-                    'gem5-configs/run_spec.py', # run_script
-                    'results/{}/{}/{}'.format(cpu, size, benchmark), # relative_outdir
-                    gem5_binary, # gem5_artifact
-                    gem5_repo, # gem5_git_artifact
-                    run_script_repo, # run_script_git_artifact
-                    'linux-4.19.83/vmlinux-4.19.83', # linux_binary
-                    'disk-image/spec2017/spec2017-image/spec2017', # disk_image
-                    linux_binary, # linux_binary_artifact
-                    disk_image, # disk_image_artifact
-                    cpu, benchmark, size, # params
-                    "-z",
-                    timeout = 5*24*60*60 # 5 days
+                    'gem5-20 spec-2017 experiment timing rerun',
+                    'gem5/build/X86/gem5.opt',
+                    'gem5-configs/run_spec.py',
+                    'results/{}/{}/{}'.format(cpu, size, benchmark),
+                    gem5_binary,
+                    gem5_repo,
+                    run_script_repo,
+                    'linux-4.19.83/vmlinux-4.19.83',
+                    'disk-image/spec2017/spec2017-image/spec2017',
+                    linux_binary,
+                    disk_image,
+                    cpu, benchmark, size,
+                    timeout = 7 * 24 * 60 * 60 # 7 days
                 )
-                run_gem5_instance.apply_async((run,))
+                jobs.append(run)
+
+    with mp.Pool(mp.cpu_count() // 2) as pool:
+         pool.map(worker, jobs)
 
 
