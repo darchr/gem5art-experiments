@@ -142,14 +142,23 @@ if __name__ == "__m5_main__":
     end_insts = system.totalInsts()
     m5.stats.reset()
 
-    # switch cpu back to kvm if atomic/timing was used for ROI
-    if cpu == 'atomic':
-        system.switchCpus(system.atomicCpu, system.cpu)
-    if cpu == 'timing':
-        system.switchCpus(system.timingCpu, system.cpu)
+    # Switching back to KVM does not work
+    # with Ruby mem protocols, so not
+    # switching back to simulate the remaining
+    # part
 
-    # Simulate the remaning part of the benchmark
-    exit_event = m5.simulate()
+    if mem_sys in ruby_protocols:
+        print("Ruby Mem: Not Switching back to KVM!")
+
+    if mem_sys == 'classic':
+        # switch cpu back to kvm if atomic/timing was used for ROI
+        if cpu == 'atomic':
+            system.switchCpus(system.atomicCpu, system.cpu)
+        if cpu == 'timing':
+            system.switchCpus(system.timingCpu, system.cpu)
+
+        # Simulate the remaning part of the benchmark
+        exit_event = m5.simulate()
 
     print("Done with the simulation")
     print()
