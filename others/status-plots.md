@@ -21,6 +21,7 @@ There is no reason apparent in the generated results files (`simout`, `simerr`, 
 # GAPBS Tests
 
 # SPEC 2006 Tests
+
 The following plot represent the status of SPEC2006 workloads for different CPUs and data sizes with respect to gem5-20 and linux kernel version 4.19.83
 
 ![SPEC-2006 status fro gem5-20 ](status-plots/spec2006_gem5-20_status.png)
@@ -30,3 +31,8 @@ The following plot represent the status of SPEC2006 workloads for different CPUs
 
 # SPEC 2017 Tests
 
+The following plot represent the status of SPEC2017 workloads with respect to gem5-20 and linux kernel version 4.19.83.
+
+* [SPEC-2017 status fro gem5-19 ](https://gem5art.readthedocs.io/en/latest/tutorials/spec2017-tutorial.html#appendix-i-working-spec-2017-benchmarks-x-cpu-model-matrix)
+
+![SPEC-2017 status fro gem5-20 ](status-plots/spec2017_gem5-20_status.png)
