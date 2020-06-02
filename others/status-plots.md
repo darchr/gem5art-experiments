@@ -22,17 +22,18 @@ There is no reason apparent in the generated results files (`simout`, `simerr`, 
 
 # SPEC 2006 Tests
 
-The following plot represent the status of SPEC2006 workloads for different CPUs and data sizes with respect to gem5-20 and linux kernel version 4.19.83
+The following plot represent the status of SPEC2006 workloads for different CPUs and data sizes with respect to gem5-20, linux kernel version 4.19.83 and gcc version 7.5.0.
 
 ![SPEC-2006 status fro gem5-20 ](status-plots/spec2006_gem5-20_status.png)
 
-* Few workloads, [_400.perlbench_, _447.dealII_, _450.soplex_, _483.xalancbmk_] had build errors
-* _434.zeusmp_ had crashed in the previous gem5 version as well
+* Few workloads, [**400.perlbench**, **447.dealII**, **450.soplex**, **483.xalancbmk**] had build errors
+* **434.zeusmp** had crashed in gem5-19 as well due a segmentation fault.
+* **453.povray** needs a rerun and the test with gem5-19 was a success. 
 
 # SPEC 2017 Tests
 
-The following plot represent the status of SPEC2017 workloads with respect to gem5-20 and linux kernel version 4.19.83.
-
-* [SPEC-2017 status fro gem5-19 ](https://gem5art.readthedocs.io/en/latest/tutorials/spec2017-tutorial.html#appendix-i-working-spec-2017-benchmarks-x-cpu-model-matrix)
+The following plot represent the status of SPEC2017 workloads with respect to gem5-20, linux kernel version 4.19.83 and gcc version 7.5.0.
 
 ![SPEC-2017 status fro gem5-20 ](status-plots/spec2017_gem5-20_status.png)
+
+* **600.perlbench_s** kernel panic while booting, couldn't find a reason.
