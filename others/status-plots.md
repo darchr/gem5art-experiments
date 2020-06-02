@@ -54,8 +54,7 @@ The following plot represent the status of SPEC2006 workloads for different CPUs
 
 ![SPEC-2006 status fro gem5-20 ](status-plots/spec2006_gem5-20_status.png)
 
-* Few workloads, [**400.perlbench**, **447.dealII**, **450.soplex**, **483.xalancbmk**] had build errors
-* **434.zeusmp** had crashed in gem5-19 as well due a segmentation fault.
+* **434.zeusmp** had crashed in gem5-19 and gem5-20 segmentation fault.
 * **453.povray** needs a rerun and the test with gem5-19 was a success. 
 
 # SPEC 2017 Tests
