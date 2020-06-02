@@ -1,5 +1,33 @@
 # Boot Tests
 
+The Linux Kernel boot tests rely on 5 LTS kernel releases (4.4.186, 4.9.186, 4.14.134, 4.19.83, and 5.4), four CPU models (kvmCPU, AtomicSimpleCPU, TimingSimpleCPU, O3CPU), three memory systems (classic, MI_Example, MESI_Two_Level) and two boot types (init, systemd).
+
+Following is the description of the possible status of these runs:
+
+**timeout:** experiment did not finish in a reasonable amount of time (12 hours: this time was chosen as we found similar successful cases did not exceed this limit on the same host machine).
+
+**not-supported:** cases which are not yet supported in gem5.
+
+**success:** cases where Linux booted successfully.
+
+**sim-crash:** cases where gem5 crashed.
+
+**kernel-panic:** cases where kernel went into panic during simulation.
+
+
+![Boot Tests Status with Classic Memory and init Boot](status-plots/boot_classic_init.png)
+
+![Boot Tests Status with Classic Memory and systemd Boot](status-plots/boot_classic_systemd.png)
+
+![Boot Tests Status with MI_Example Memory and init Boot](status-plots/boot_MI_example_init.png)
+
+![Boot Tests Status with MI_Example Memory and systemd Boot](status-plots/boot_MI_example_systemd.png)
+
+![Boot Tests Status with MESI_Two_Level Memory and init Boot](status-plots/boot_MESI_Two_Level_init.png)
+
+![Boot Tests Status with MESI_Two_Level Memory and systemd Boot](status-plots/boot_MESI_Two_Level_systemd.png)
+
+
 # NPB Tests
 
 These NPB tests use KVM CPU (1,8,16,32, and 64 cores) and TimingSimple CPU (1 and 8 cores) with MESI_Two_Level memory system.
