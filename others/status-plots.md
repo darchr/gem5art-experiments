@@ -22,7 +22,9 @@ There is no reason apparent in the generated results files (`simout`, `simerr`, 
 
 # SPEC 2006 Tests
 The following plot represent the status of SPEC2006 workloads for different CPUs and data sizes with respect to gem5-20 and linux kernel version 4.19.83
+
 ![SPEC-2006 status fro gem5-20 ](status-plots/spec2006_gem5-20_status.png)
+
 * Few workloads, [_400.perlbench_, _447.dealII_, _450.soplex_, _483.xalancbmk_] had build errors
 * _434.zeusmp_ had crashed in the previous gem5 version as well
 
