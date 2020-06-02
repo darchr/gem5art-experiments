@@ -97,7 +97,7 @@ The following plot represent the status of SPEC2017 workloads with respect to ge
 * **600.perlbench_s** kernel panic while booting, couldn't find a reason.
 
 # GAPBS Tests
-The results of the GAPBS experiments with gem5-20 are shown below. FOr this experiment the input graphs for workloads are synthetically generated.
+The results of the GAPBS experiments with gem5-20 are shown below. For this experiment the input graphs for the workloads are synthetically generated.
 
 ![GAPBSSPEC-2017 status fro gem5-20 kvm](status-plots/gapbs_kvm.png)
 
