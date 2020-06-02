@@ -1,3 +1,7 @@
+# Working Status of Benchmarks
+
+This page provides information on the working status of some benchmark suites with gem5-20.
+
 # Boot Tests
 
 The Linux Kernel boot tests rely on 5 LTS kernel releases (4.4.186, 4.9.186, 4.14.134, 4.19.83, and 5.4), four CPU models (kvmCPU, AtomicSimpleCPU, TimingSimpleCPU, O3CPU), three memory systems (classic, MI_Example, MESI_Two_Level) and two boot types (init, systemd).
@@ -27,6 +31,15 @@ Following is the description of the possible status of these runs:
 
 ![Boot Tests Status with MESI_Two_Level Memory and systemd Boot](status-plots/boot_MESI_Two_Level_systemd.png)
 
+**Summary:** kvmCPU works in all cases.
+AtomicSimpleCPU works fine with Classic memory system, but it is not supported with any Ruby protocols.
+TimingSimpleCPU always work for a single CPU core in case of Classic memory system, but fails to complete the booting process in the alloted time for more than one CPU cores.
+TimingSimpleCPU mostly works for any number of CPU cores for Ruby memory protocols except one case with MI_example and seven cases with MESI_Two_Level protocols, where gem5 crashes.
+However, all of these crashes show an error that the cache controller's packet queue has grown beyond 100 packets.
+It is expected that recompiling gem5 after changing the default packet queue size to a bigger value will lead these simulations to work fine.
+For O3CPU, the Classic memory system is considered to not support more than one CPU core and with a single CPU core it works successfully in less than half of the cases and either shows kernel panic or simulation times out in the rest of the cases.
+For Ruby memory protocols as well, O3CPU simulations do not work in all the cases (except one), but either times out or show kernel panic or crash.
+The O3CPU (with Ruby) cases where simulations crash, the errors point to possible deadlocks or segmentation faults.
 
 # NPB Tests
 
@@ -62,8 +75,6 @@ The cases of unsuccessfull termination of simulation are shown below:
 * Corrupted Input: When running experiments using `vips` workload, simulation does not start because the inputs to the workload are corrupted.
 * Stack Smashing Detected: When running workload `x264` with TimingSimple CPU model, the simulation stops because a stack smashing attack is detected.
 
-# GAPBS Tests
-
 # SPEC 2006 Tests
 
 The following plot represent the status of SPEC2006 workloads for different CPUs and data sizes with respect to gem5-20, linux kernel version 4.19.83 and gcc version 7.5.0.
@@ -80,3 +91,5 @@ The following plot represent the status of SPEC2017 workloads with respect to ge
 ![SPEC-2017 status fro gem5-20 ](status-plots/spec2017_gem5-20_status.png)
 
 * **600.perlbench_s** kernel panic while booting, couldn't find a reason.
+
+# GAPBS Tests
