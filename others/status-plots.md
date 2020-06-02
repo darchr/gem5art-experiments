@@ -52,10 +52,14 @@ A work around is to use lower number of event queues than the CPU cores.
 Although our scripts do that for more than 1 CPU core, the cases shown as `timeout` in the plot above
 suffer from this problem of getting stuck.
 
-![NPB Status with TimingSimple CPU](status-plots/npb_multicore_timing.png)
+![NPB Status with TimingSimple CPU and MESI_Two_Level Memory System](status-plots/npb_multicore_timing.png)
 
 There are three cases with TimingSimple CPU which did not finish in the alloted time.
 There is no reason apparent in the generated results files (`simout`, `simerr`, `system.pc.com_1.device`).
+Without further analysis, it is hard to tell if the simulation is stuck or is proceeding normally and just need more time to finish.
+
+**Summary:** Most of the tested KVM and TimingSimple CPU simulations of NPB work successfully.
+The rest of the cases could not result into success in the allocated simulation time (except one kernel panic case).
 
 ## PARSEC Tests
 
