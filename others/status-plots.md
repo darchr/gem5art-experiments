@@ -44,7 +44,23 @@ suffer from this problem of getting stuck.
 There are three cases with TimingSimple CPU which did not finish in the alloted time.
 There is no reason apparent in the generated results files (`simout`, `simerr`, `system.pc.com_1.device`).
 
-# PARSEC Tests
+## PARSEC Tests
+
+The PARSEC Experiments have been run with the following configurations:
+
+* KVM CPU model: Ruby Memory System + MESI_Two_Level + [`simsmall`, `simlarge`, `native`] sizes + [`1`, `2`, `8`] cores.
+
+* TimingSimple CPU model: Ruby System + MESI_Two_Level + [`simsmall`] size + [`1`, `2`] cores.
+
+The result of experiments with gem5-20 is shown below:
+
+![PARSEC Status with KVM CPU](status-plots/parsec_mesi_two_level_kvm.png)
+![PARSEC Status with TimingSimple CPU](status-plots/parsec_mesi_two_level_timing.png)
+
+The cases of unsuccessfull termination of simulation are shown below:
+
+* Corrupted Input: When running experiments using `vips` workload, simulation does not start because the inputs to the workload are corrupted.
+* Stack Smashing Detected: When running workload `x264` with TimingSimple CPU model, the simulation stops because a stack smashing attack is detected.
 
 # GAPBS Tests
 
