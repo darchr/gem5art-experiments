@@ -81,13 +81,13 @@ gem5_artifacts = {
 }
 
 linux_repo = Artifact.registerArtifact(
-    command = '''git clone https://github.com/torvalds/linux.git;
+    command = '''git clone https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;
     mv linux linux-stable''',
     typ = 'git repo',
     name = 'linux-stable',
     path =  'linux-stable/',
     cwd = './',
-    documentation = 'linux kernel source code repo from Sep 23rd'
+    documentation = 'linux kernel source code repo downloaded in March 2020'
 )
 
 linuxes = ['5.4', '4.19.83', '4.14.134', '4.9.186', '4.4.186']
