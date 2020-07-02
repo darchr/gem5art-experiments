@@ -30,13 +30,13 @@
 
     Inputs:
     * This script expects the following as arguments:
-        ** kernel: 
+        ** kernel:
                   This is a positional argument specifying the path to
                   vmlinux.
-        ** disk: 
+        ** disk:
                   This is a positional argument specifying the path to the
                   disk image containing the installed SPEC benchmarks.
-        ** cpu: 
+        ** cpu:
                   This is a positional argument specifying the name of the
                   detailed CPU model. The names of the available CPU models
                   are available in the getDetailedCPUModel(cpu_name) function.
@@ -50,10 +50,10 @@
                   This is a positional argument specifying the name of the
                   SPEC benchmark to run. Most SPEC benchmarks are available.
                   Please follow this link to check the availability of the
-                  benchmarks. The working benchmark matrix is near the bottom
+                  benchmarks. The working benchmark matrix is near the end
                   of the page:
-         (SPEC 2006) https://gem5art.readthedocs.io/en/latest/spec2006-tutorial.html
-         (SPEC 2017) https://gem5art.readthedocs.io/en/latest/spec2017-tutorial.html
+         (SPEC 2006) https://gem5art.readthedocs.io/en/latest/tutorials/spec2006-tutorial.html#appendix-i-working-spec-2006-benchmarks-x-cpu-model-table
+         (SPEC 2017) https://gem5art.readthedocs.io/en/latest/tutorials/spec2017-tutorial.html#appendix-i-working-spec-2017-benchmarks-x-cpu-model-table
         ** size:
                   This is a positional argument specifying the size of the
                   benchmark. The available sizes are: ref, test, train.
@@ -62,17 +62,13 @@
                   the benchmark run is not copied to the output folder.
                   The reports are copied by default.
         ** --allow-listeners:
-                  This is an optional argument specifying gem5 to open
+                  This is an optional argument specifying gem5 to open GDB
                   listening ports. Usually, the ports are opened for debugging
-                  purposes. 
+                  purposes.
                   By default, the ports are off.
-                  
-    Outputs:
-    * TODO: simple performance statistics
 """
 import os
 import sys
-import time
 
 import m5
 import m5.ticks
@@ -90,7 +86,7 @@ def writeBenchScript(dir, benchmark_name, size, output_path):
     at bootup).
     """
     input_file_name = '{}/run_{}_{}'.format(dir, benchmark_name, size)
-    with open(input_file_name,"w") as f:
+    with open(input_file_name, "w") as f:
         f.write('{} {} {}'.format(benchmark_name, size, output_path))
     return input_file_name
 
@@ -105,12 +101,9 @@ def parse_arguments():
                         help = "Name of the SPEC benchmark")
     parser.add_argument("size", type = str,
                         help = "Available sizes: test, train, ref")
-    parser.add_argument("-k", "--kernel", type = str,
-                        default = "linux-4.19.83/vmlinux-4.19.83",
-                        help = "Path to vmlinux")
     parser.add_argument("-l", "--no-copy-logs", default = False,
                         action = "store_true",
-                        help = "Not copy SPEC run logs to the host system;"
+                        help = "Not to copy SPEC run logs to the host system;"
                                "Logs are copied by default")
     parser.add_argument("-z", "--allow-listeners", default = False,
                         action = "store_true",
@@ -132,7 +125,7 @@ def getDetailedCPUModel(cpu_name):
     except NameError:
         # FlexCPU is not defined
         pass
-    # https://docs.python.org/3/library/stdtypes.html#dict.get 
+    # https://docs.python.org/3/library/stdtypes.html#dict.get
     # dict.get() returns None if the key does not exist
     return available_models.get(cpu_name)
 
@@ -148,7 +141,7 @@ def create_system(linux_kernel_path, disk_image_path, detailed_cpu_model):
                       num_cpus = 1, # run the benchmark in a single thread
                       no_kvm = False,
                       TimingCPUModel = detailed_cpu_model)
-    
+
     # For workitems to work correctly
     # This will cause the simulator to exit simulation when the first work
     # item is reached and when the first work item is finished.
@@ -223,6 +216,13 @@ if __name__ == "__m5_main__":
     no_copy_logs = args.no_copy_logs
     allow_listeners = args.allow_listeners
 
+    if not no_copy_logs and not os.path.isabs(m5.options.outdir):
+        print("Please specify the --outdir (output directory) of gem5"
+              " in the form of an absolute path")
+        print("An example: build/X86/gem5.opt --outdir /home/user/m5out/"
+              " configs-spec-tests/run_spec ...")
+        exit(1)
+
     output_dir = os.path.join(m5.options.outdir, "speclogs")
 
     # Get the DetailedCPU class from its name
@@ -275,13 +275,14 @@ if __name__ == "__m5_main__":
 
     if not no_copy_logs:
         # create the output folder
-        os.makedirs(output_dir)
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
 
         # switch from detailed CPU to KVM
         if not cpu_name == "kvm":
             print("Switching to KVM")
             system.switchCpus(system.detailed_cpu, system.cpu)
             print("Switching done")
-        
+
         # copying logs
         success, exit_cause = copy_spec_logs()
