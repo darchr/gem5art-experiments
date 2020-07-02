@@ -140,7 +140,7 @@ if __name__ == "__main__":
             )
 
     # For the cross product of tests, create a run object.
-    runs = starmap(createRun, product(linuxes, boot_types, cpu_types, num_cpus, mem_types)):
+    runs = starmap(createRun, product(linuxes, boot_types, cpu_types, num_cpus, mem_types))
     # Run all of these experiments in parallel
     for run in runs:
         run_gem5_instance.apply_async((run, os.getcwd(),))
