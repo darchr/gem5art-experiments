@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2019 The Regents of the University of California.
+# Copyright (c) 2020 The Regents of the University of California.
 # All rights reserved.
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
 # met: redistributions of source code must retain the above copyright
@@ -30,13 +31,13 @@
 
     Inputs:
     * This script expects the following as arguments:
-        ** kernel: 
+        ** kernel:
                   This is a positional argument specifying the path to
                   vmlinux.
-        ** disk: 
+        ** disk:
                   This is a positional argument specifying the path to the
                   disk image containing the installed SPEC benchmarks.
-        ** cpu: 
+        ** cpu:
                   This is a positional argument specifying the name of the
                   detailed CPU model. The names of the available CPU models
                   are available in the getDetailedCPUModel(cpu_name) function.
@@ -64,15 +65,14 @@
         ** --allow-listeners:
                   This is an optional argument specifying gem5 to open
                   listening ports. Usually, the ports are opened for debugging
-                  purposes. 
+                  purposes.
                   By default, the ports are off.
-                  
+
     Outputs:
     * TODO: simple performance statistics
 """
 import os
 import sys
-import time
 
 import m5
 import m5.ticks
@@ -80,7 +80,7 @@ from m5.objects import *
 
 import argparse
 
-from system import MySystem
+from system import *
 
 
 def writeBenchScript(dir, benchmark_name, size, output_path):
@@ -101,16 +101,17 @@ def parse_arguments():
     parser.add_argument("disk", type = str,
                   help = "Path to the disk image containing SPEC benchmarks")
     parser.add_argument("cpu", type = str, help = "Name of the detailed CPU")
+    parser.add_argument("mem_sys", type = str, help = "Name of the memory system")
     parser.add_argument("benchmark", type = str,
                         help = "Name of the SPEC benchmark")
     parser.add_argument("size", type = str,
                         help = "Available sizes: test, train, ref")
-    parser.add_argument("-k", "--kernel", type = str,
-                        default = "linux-4.19.83/vmlinux-4.19.83",
-                        help = "Path to vmlinux")
+    # parser.add_argument("-k", "--kernel", type = str,
+    #                     default = "linux-4.19.83/vmlinux-4.19.83",
+    #                     help = "Path to vmlinux")
     parser.add_argument("-l", "--no-copy-logs", default = False,
                         action = "store_true",
-                        help = "Not copy SPEC run logs to the host system;"
+                        help = "Not to copy SPEC run logs to the host system;"
                                "Logs are copied by default")
     parser.add_argument("-z", "--allow-listeners", default = False,
                         action = "store_true",
@@ -132,7 +133,7 @@ def getDetailedCPUModel(cpu_name):
     except NameError:
         # FlexCPU is not defined
         pass
-    # https://docs.python.org/3/library/stdtypes.html#dict.get 
+    # https://docs.python.org/3/library/stdtypes.html#dict.get
     # dict.get() returns None if the key does not exist
     return available_models.get(cpu_name)
 
@@ -141,14 +142,26 @@ def getBenchmarkName(benchmark_name):
         benchmark_name = benchmark_name[:-6]
     return benchmark_name
 
-def create_system(linux_kernel_path, disk_image_path, detailed_cpu_model):
+def create_system(linux_kernel_path, disk_image_path, detailed_cpu_model, memory_system):
     # create the system we are going to simulate
-    system = MySystem(kernel = linux_kernel_path,
-                      disk = disk_image_path,
-                      num_cpus = 1, # run the benchmark in a single thread
-                      no_kvm = False,
-                      TimingCPUModel = detailed_cpu_model)
-    
+    ruby_protocols = [ "MI_example", "MESI_Two_Level", "MOESI_CMP_directory"]
+    if memory_system == 'classic':
+        system = MySystem(kernel = linux_kernel_path,
+                        disk = disk_image_path,
+                        num_cpus = 1, # run the benchmark in a single thread
+                        no_kvm = False,
+                        TimingCPUModel = detailed_cpu_model)
+    elif memory_system in ruby_protocols:
+        system = MyRubySystem(kernel = linux_kernel_path,
+                        disk = disk_image_path,
+                        num_cpus = 1, # run the benchmark in a single thread
+                        mem_sys = memory_system,
+                        no_kvm = False,
+                        TimingCPUModel = detailed_cpu_model)
+    else:
+        m5.fatal("Bad option for mem_sys, should be "
+        "{}, or 'classic'".format(', '.join(ruby_protocols)))
+
     # For workitems to work correctly
     # This will cause the simulator to exit simulation when the first work
     # item is reached and when the first work item is finished.
@@ -216,6 +229,7 @@ if __name__ == "__m5_main__":
     args = parse_arguments()
 
     cpu_name = args.cpu
+    mem_sys = args.mem_sys
     benchmark_name = getBenchmarkName(args.benchmark)
     benchmark_size = args.size
     linux_kernel_path = args.kernel
@@ -238,9 +252,9 @@ if __name__ == "__m5_main__":
         exit(1)
 
     root, system = create_system(linux_kernel_path, disk_image_path,
-                                 detailed_cpu)
+                                 detailed_cpu, mem_sys)
 
-    # Create and pass a script to the simulated system to run the reuired
+    # Create and pass a script to the simulated system to run the required
     # benchmark
     system.readfile = writeBenchScript(m5.options.outdir, benchmark_name,
                                        benchmark_size, output_dir)
@@ -275,13 +289,14 @@ if __name__ == "__m5_main__":
 
     if not no_copy_logs:
         # create the output folder
-        os.makedirs(output_dir)
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
 
         # switch from detailed CPU to KVM
         if not cpu_name == "kvm":
             print("Switching to KVM")
             system.switchCpus(system.detailed_cpu, system.cpu)
             print("Switching done")
-        
+
         # copying logs
         success, exit_cause = copy_spec_logs()
