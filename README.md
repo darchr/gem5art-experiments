@@ -1,5 +1,7 @@
 # gem5art-experiments
 
+**NOTE: This repo has been archived and is no longer under maintenance. The resources discussed here can be found in [gem5-resources](http://resources.gem5.org). More information on the gem5 project can be found at <http://www.gem5.org>.**
+
 This repository contains different files (launch scripts, gem5 configuration files, disk image and linux configuration files) needed to run experiments with gem5art.
 This README describes how to run different experiments with gem5art step-by-step and points to the detailed documentation on these experiments as well.
 
