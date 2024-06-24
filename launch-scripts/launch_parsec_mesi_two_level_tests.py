@@ -28,17 +28,17 @@ experiments_repo = Artifact.registerArtifact(
     documentation = 'main repo to run parsec tests with gem5'
 )
 
-parsec_repo = Artifact.registerArtifact(
-    command = '''mkdir parsec-benchmark/;
-    cd parsec-benchmark;
-    git clone https://github.com/darchr/parsec-benchmark.git;''',
-    typ = 'git repo',
-    name = 'parsec_repo',
-    path =  './disk-image/parsec-benchmark/parsec-benchmark/',
-    cwd = './disk-image/',
-    documentation = '''main repo to copy parsec source to the disk-image, the reason behind creating a directory with same name inside 
-        disk-image/parsec-benchmark is this way when the benchmark is copied to the disk-image they would not be scatted in ~ directory'''
-)
+# parsec_repo = Artifact.registerArtifact(
+#     command = '''mkdir parsec-benchmark/;
+#     cd parsec-benchmark;
+#     git clone https://github.com/darchr/parsec-benchmark.git;''',
+#     typ = 'git repo',
+#     name = 'parsec_repo',
+#     path =  './disk-image/parsec-benchmark/parsec-benchmark/',
+#     cwd = './disk-image/',
+#     documentation = '''main repo to copy parsec source to the disk-image, the reason behind creating a directory with same name inside 
+#         disk-image/parsec-benchmark is this way when the benchmark is copied to the disk-image they would not be scatted in ~ directory'''
+# )
 
 gem5_repo = Artifact.registerArtifact(
     command = '''
@@ -69,7 +69,7 @@ disk_image = Artifact.registerArtifact(
     name = 'parsec',
     cwd = 'disk-image',
     path = 'disk-image/parsec/parsec-image/parsec',
-    inputs = [packer, experiments_repo, m5_binary, parsec_repo,],
+    inputs = [packer, experiments_repo, m5_binary,],
     documentation = 'Disk-image using Ubuntu 18.04 with m5 binary and PARSEC installed.'
 )
 

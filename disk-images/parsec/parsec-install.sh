@@ -24,14 +24,16 @@ sudo apt install -y xorg-dev
 sudo apt install -y unzip
 sudo apt install -y texinfo
 sudo apt install -y freeglut3-dev
+sudo apt install -y cmake
 ## 
 
 # Building PARSEC
+git clone https://github.com/darchr/parsec-benchmark.git
 echo "12345" | sudo -S chown gem5 -R parsec-benchmark/
 echo "12345" | sudo -S chgrp gem5 -R parsec-benchmark/
 cd parsec-benchmark
+chmod +x install.sh
 ./install.sh
-./get-inputs
 cd .. 
 echo "12345" | sudo -S chown gem5 -R parsec-benchmark/
 echo "12345" | sudo -S chgrp gem5 -R parsec-benchmark/

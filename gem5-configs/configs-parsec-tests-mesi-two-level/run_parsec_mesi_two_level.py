@@ -138,8 +138,8 @@ if __name__ == "__m5_main__":
         print("Simulated time: %.2fs" % ((end_tick-start_tick)/1e12))
         print("Instructions executed: %d" % ((end_insts-start_insts)))
         print("Ran a total of", m5.curTick()/1e12, "simulated seconds")
-        print("Total wallclock time: %.2fs, %.2f min" % \
-                    (time.time()-globalStart, (time.time()-globalStart)/60))
+        # print("Total wallclock time: %.2fs, %.2f min" % \
+        #             (time.time()-globalStart, (time.time()-globalStart)/60))
         exit()
 
     # Simulate the ROI
@@ -156,10 +156,18 @@ if __name__ == "__m5_main__":
         end_tick = m5.curTick()
         end_insts = system.totalInsts()
         m5.stats.reset()
-        # switching to atomic cpu if argument cpu == atomic
-        # if cpu == 'timing':
+
+        # switching to atomic cpu if argument cpu == timing
+        if cpu == 'timing':
             # system.switchCpus(system.timingCpu, system.cpu)
-        exit()
+            print("Performance statistics:")
+
+            print("Simulated time: %.2fs" % ((end_tick-start_tick)/1e12))
+            print("Instructions executed: %d" % ((end_insts-start_insts)))
+            print("Ran a total of", m5.curTick()/1e12, "simulated seconds")
+            print("Total wallclock time: %.2fs, %.2f min" % \
+                    (time.time()-globalStart, (time.time()-globalStart)/60))
+            exit()
     else:
         print("Unexpected termination of simulation!")
         print()
@@ -172,8 +180,8 @@ if __name__ == "__m5_main__":
         print("Simulated time: %.2fs" % ((end_tick-start_tick)/1e12))
         print("Instructions executed: %d" % ((end_insts-start_insts)))
         print("Ran a total of", m5.curTick()/1e12, "simulated seconds")
-        print("Total wallclock time: %.2fs, %.2f min" % \
-                    (time.time()-globalStart, (time.time()-globalStart)/60))
+        # print("Total wallclock time: %.2fs, %.2f min" % \
+        #             (time.time()-globalStart, (time.time()-globalStart)/60))
         exit()
     
     # Simulate the remaning part of the benchmark
